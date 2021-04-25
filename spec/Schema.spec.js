@@ -1367,6 +1367,24 @@ describe('SchemaController', () => {
   });
 });
 
+describe('Class Level Permissions', () => {
+  it('does not require addField for nested modification (#7371)', async () => {
+    const testSchema = new Parse.Schema('test_7371');
+    testSchema.setCLP({
+      create: { ['*']: true },
+      update: { ['*']: true },
+      addField: {},
+    });
+    testSchema.addObject('a');
+    await testSchema.save();
+    const obj = new Parse.Object('test_7371');
+    obj.set('a', { b: 1 });
+    await obj.save();
+    obj.set('a.b', 2);
+    await obj.save();
+  });
+});
+
 describe('Class Level Permissions for requiredAuth', () => {
   beforeEach(() => {
     config = Config.get('test');
