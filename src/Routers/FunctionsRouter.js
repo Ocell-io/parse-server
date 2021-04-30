@@ -147,12 +147,12 @@ export class FunctionsRouter extends PromiseRouter {
           try {
             const cleanResult = logger.truncateLogMessage(JSON.stringify(result.response.result));
             logger[req.config.logLevels.cloudFunctionSuccess](
-              `Ran cloud function ${functionName} for user ${userString} with:\n  Input: ${cleanInput}\n  Result: ${cleanResult}`,
+              `Ran cloud function ${functionName} for user ${userString} with:\n  Input: ${cleanInput}\n  Result: ${cleanResult}` /*,
               {
                 functionName,
                 params,
                 user: userString,
-              }
+              }*/
             );
             resolve(result);
           } catch (e) {
@@ -163,13 +163,13 @@ export class FunctionsRouter extends PromiseRouter {
           try {
             logger[req.config.logLevels.cloudFunctionError](
               `Failed running cloud function ${functionName} for user ${userString} with:\n  Input: ${cleanInput}\n  Error: ` +
-                JSON.stringify(error),
-              {
+                JSON.stringify(error)
+              /*{
                 functionName,
                 error,
                 params,
                 user: userString,
-              }
+              }*/
             );
             reject(error);
           } catch (e) {
