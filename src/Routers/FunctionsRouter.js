@@ -144,18 +144,15 @@ export class FunctionsRouter extends PromiseRouter {
       const { success, error } = FunctionsRouter.createResponseObject(
         result => {
           try {
-            if (req.config.logLevels.cloudFunctionSuccess !== 'silent') {
-              const cleanInput = logger.truncateLogMessage(JSON.stringify(params));
-              const cleanResult = logger.truncateLogMessage(JSON.stringify(result.response.result));
-              logger[req.config.logLevels.cloudFunctionSuccess](
-                `Ran cloud function ${functionName} for user ${userString} with:\n  Input: ${cleanInput}\n  Result: ${cleanResult}`,
-                {
-                  functionName,
-                  params,
-                  user: userString,
-                }
-              );
-            }
+            const cleanResult = logger.truncateLogMessage(JSON.stringify(result.response.result));
+            logger[req.config.logLevels.cloudFunctionSuccess](
+              `Ran cloud function ${functionName} for user ${userString} with:\n  Input: ${cleanInput}\n  Result: ${cleanResult}` /*,
+              {
+                functionName,
+                params,
+                user: userString,
+              }*/
+            );
             resolve(result);
           } catch (e) {
             reject(e);
@@ -163,19 +160,16 @@ export class FunctionsRouter extends PromiseRouter {
         },
         error => {
           try {
-            if (req.config.logLevels.cloudFunctionError !== 'silent') {
-              const cleanInput = logger.truncateLogMessage(JSON.stringify(params));
-              logger[req.config.logLevels.cloudFunctionError](
-                `Failed running cloud function ${functionName} for user ${userString} with:\n  Input: ${cleanInput}\n  Error: ` +
-                  JSON.stringify(error),
-                {
-                  functionName,
-                  error,
-                  params,
-                  user: userString,
-                }
-              );
-            }
+            logger[req.config.logLevels.cloudFunctionError](
+              `Failed running cloud function ${functionName} for user ${userString} with:\n  Input: ${cleanInput}\n  Error: ` +
+                JSON.stringify(error)
+              /*{
+                functionName,
+                error,
+                params,
+                user: userString,
+              }*/
+            );
             reject(error);
           } catch (e) {
             reject(e);
