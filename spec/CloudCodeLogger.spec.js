@@ -44,11 +44,11 @@ describe('Cloud Code Logger', () => {
       const errorMessage = spy.calls.all()[1];
       const infoMessage = spy.calls.all()[0];
       expect(cloudFunctionMessage.args[0]).toBe('info');
-      expect(cloudFunctionMessage.args[1][1].params).toEqual({});
+      //expect(cloudFunctionMessage.args[1][1].params).toEqual({});
       expect(cloudFunctionMessage.args[1][0]).toMatch(
         /Ran cloud function loggerTest for user [^ ]* with:\n {2}Input: {}\n {2}Result: {}/
       );
-      expect(cloudFunctionMessage.args[1][1].functionName).toEqual('loggerTest');
+      //expect(cloudFunctionMessage.args[1][1].functionName).toEqual('loggerTest');
       expect(errorMessage.args[0]).toBe('error');
       expect(errorMessage.args[1][2].error).toBe('there was an error');
       expect(errorMessage.args[1][0]).toBe('logTest');
@@ -231,7 +231,21 @@ describe('Cloud Code Logger', () => {
       .then(null, e => done.fail(JSON.stringify(e)));
   }).pend('needs more work.....');
 
-  it('cloud function should obfuscate password', done => {
+  //it('cloud function should obfuscate password', done => {
+  //  Parse.Cloud.define('testFunction', () => {
+  //    return 'verify code success';
+  //  });
+  //
+  //  Parse.Cloud.run('testFunction', { username: 'hawk', password: '123456' })
+  //    .then(() => {
+  //      const entry = spy.calls.mostRecent().args;
+  //      expect(entry[2].params.password).toMatch(/\*\*\*\*\*\*\*\*/);
+  //      done();
+  //    })
+  //    .then(null, e => done.fail(e));
+  //});
+
+  it('cloud functions do not log their parameters', done => {
     Parse.Cloud.define('testFunction', () => {
       return 'verify code success';
     });
@@ -239,7 +253,7 @@ describe('Cloud Code Logger', () => {
     Parse.Cloud.run('testFunction', { username: 'hawk', password: '123456' })
       .then(() => {
         const entry = spy.calls.mostRecent().args;
-        expect(entry[2].params.password).toMatch(/\*\*\*\*\*\*\*\*/);
+        expect(entry[2]).toBe(undefined);
         done();
       })
       .then(null, e => done.fail(e));
