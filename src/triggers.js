@@ -257,7 +257,8 @@ export function getRequestObject(
   parseObject,
   originalParseObject,
   config,
-  context
+  context,
+  update
 ) {
   const request = {
     triggerName: triggerType,
@@ -282,6 +283,9 @@ export function getRequestObject(
   ) {
     // Set a copy of the context on the request object.
     request.context = Object.assign({}, context);
+  }
+  if (triggerType === Types.beforeSave || triggerType === Types.afterSave) {
+    request.update = update;
   }
 
   if (!auth) {
@@ -832,14 +836,15 @@ async function builtInTriggerValidator(options, request, auth) {
 // Will resolve successfully if no trigger is configured
 // Resolves to an object, empty or containing an object key. A beforeSave
 // trigger will set the object key to the rest format object to save.
-// originalParseObject is optional, we only need that for before/afterSave functions
+// originalParseObject and update are optional, we only need them for before/afterSave functions
 export function maybeRunTrigger(
   triggerType,
   auth,
   parseObject,
   originalParseObject,
   config,
-  context
+  context,
+  update
 ) {
   if (!parseObject) {
     return Promise.resolve({});
@@ -853,7 +858,8 @@ export function maybeRunTrigger(
       parseObject,
       originalParseObject,
       config,
-      context
+      context,
+      update
     );
     var { success, error } = getResponseObject(
       request,

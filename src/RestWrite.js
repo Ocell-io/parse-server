@@ -75,6 +75,7 @@ function RestWrite(config, auth, className, query, data, originalData, clientSDK
   // copy
   this.query = deepcopy(query);
   this.data = deepcopy(data);
+  this.update = deepcopy(data);
   // We never change originalData, so we do not need a deep copy
   this.originalData = originalData;
 
@@ -281,7 +282,8 @@ RestWrite.prototype.runBeforeSaveTrigger = function () {
         updatedObject,
         originalObject,
         this.config,
-        this.context
+        this.context,
+        this.update
       );
     })
     .then(response => {
@@ -1675,7 +1677,8 @@ RestWrite.prototype.runAfterSaveTrigger = function () {
       updatedObject,
       originalObject,
       this.config,
-      this.context
+      this.context,
+      this.update
     )
     .then(result => {
       const jsonReturned = result && !result._toFullJSON;
