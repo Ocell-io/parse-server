@@ -568,6 +568,35 @@ describe('miscellaneous', function () {
       );
   });
 
+  it('update parameters are set on update', async () => {
+    let triggerTime = 0;
+    const trigger = req => {
+      const update = req.update;
+      if (triggerTime < 2) {
+        // Object creation should pass all fields to the triggers
+        expect(update).toEqual({ a: 'b', cnt: 0 });
+      } else if (triggerTime < 4) {
+        // Object modification should pass only the fields specified in the request
+        expect(update).toEqual({ cnt: { __op: 'Increment', amount: 1 } });
+      } else {
+        throw new Error();
+      }
+      triggerTime++;
+    };
+    // Register mock beforeSave and afterSave hooks
+    Parse.Cloud.beforeSave('GameScore', req => trigger(req)); // Use lambdas here to make it evident in the stack trace which trigger's test failed
+    Parse.Cloud.afterSave('GameScore', req => trigger(req));
+
+    const obj = new Parse.Object('GameScore');
+    obj.set('a', 'b');
+    obj.set('cnt', 0);
+    await obj.save();
+    obj.increment('cnt', 1);
+    await obj.save();
+    // Make sure the checking has been triggered
+    expect(triggerTime).toBe(4);
+  });
+
   it('pointer mutation properly saves object', done => {
     const className = 'GameScore';
 
