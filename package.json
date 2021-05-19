@@ -47,7 +47,7 @@
     "mime": "2.5.2",
     "mongodb": "3.6.6",
     "mustache": "4.2.0",
-    "parse": "3.2.0",
+    "parse": "github:parse-community/Parse-SDK-JS#ffc523f9cd0fa2dd3fcc9754d5f15c3c1c78314f",
     "pg-monitor": "1.4.1",
     "pg-promise": "10.10.1",
     "pluralize": "8.0.0",
