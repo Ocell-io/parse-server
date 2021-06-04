@@ -1033,35 +1033,49 @@ export class MongoStorageAdapter implements StorageAdapter {
   }
 
   createTextIndexesIfNeeded(className: string, query: QueryType, schema: any): Promise<void> {
+    var promise = Promise.resolve();
     for (const fieldName in query) {
+      if (fieldName === '$and' || fieldName === '$or') {
+        query[fieldName].forEach(subQuery => {
+          promise = promise.then(() => {
+            return this.createTextIndexesIfNeeded(className, subQuery, schema);
+          });
+        });
+        continue;
+      }
       if (!query[fieldName] || !query[fieldName].$text) {
         continue;
       }
       const existingIndexes = schema.indexes;
+      var found = false;
       for (const key in existingIndexes) {
         const index = existingIndexes[key];
         if (Object.prototype.hasOwnProperty.call(index, fieldName)) {
-          return Promise.resolve();
+          found = true;
+          break;
         }
       }
+      if (found) continue;
       const indexName = `${fieldName}_text`;
       const textIndex = {
         [indexName]: { [fieldName]: 'text' },
       };
-      return this.setIndexesWithSchemaFormat(
-        className,
-        textIndex,
-        existingIndexes,
-        schema.fields
-      ).catch(error => {
-        if (error.code === 85) {
-          // Index exist with different options
-          return this.setIndexesFromMongo(className);
-        }
-        throw error;
+      promise = promise.then(() => {
+        return this.setIndexesWithSchemaFormat(
+          className,
+          textIndex,
+          existingIndexes,
+          schema.fields
+        ).catch(error => {
+          if (error.code === 85) {
+            // Index exist with different options
+            return this.setIndexesFromMongo(className);
+          }
+          throw error;
+        });
       });
     }
-    return Promise.resolve();
+    return promise;
   }
 
   getIndexes(className: string) {
