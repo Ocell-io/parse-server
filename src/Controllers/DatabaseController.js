@@ -23,19 +23,40 @@ import type { QueryOptions, FullQueryOptions } from '../Adapters/Storage/Storage
 
 function addWriteACL(query, acl) {
   const queryClone = _.cloneDeep(query);
-  return {
-    $and: [queryClone, { $or: [{ _wperm: { $exists: false } }, { _wperm: { $in: [...acl] } }] }],
-  };
+
+  if (typeof queryClone['$and'] === 'undefined') queryClone['$and'] = [];
+
+  queryClone['$and'].push({
+    $or: [
+      {
+        _wperm: { $exists: false },
+      },
+      {
+        _wperm: { $in: [...acl] },
+      },
+    ],
+  });
+
+  return queryClone;
 }
 
 function addReadACL(query, acl) {
   const queryClone = _.cloneDeep(query);
-  return {
-    $and: [
-      queryClone,
-      { $or: [{ _rperm: { $exists: false } }, { _rperm: { $in: ['*', ...acl] } }] },
+
+  if (typeof queryClone['$and'] === 'undefined') queryClone['$and'] = [];
+
+  queryClone['$and'].push({
+    $or: [
+      {
+        _rperm: { $exists: false },
+      },
+      {
+        _rperm: { $in: ['*', ...acl] },
+      },
     ],
-  };
+  });
+
+  return queryClone;
 }
 
 // Transforms a REST API formatted ACL object to our two-field mongo format.
