@@ -893,7 +893,6 @@ RestWrite.createSession = function (
       objectId: userId,
     },
     createdWith,
-    restricted: false,
     expiresAt: Parse._encode(expiresAt),
   };
 
