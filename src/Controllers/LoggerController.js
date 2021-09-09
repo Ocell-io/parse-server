@@ -67,7 +67,7 @@ export class LoggerController extends AdaptableController {
       }
 
       if (typeof e === 'string') {
-        return e.replace(/(password".?:.?")[^"]*"/g, '$1********"');
+        return e.replace(/([^"]?[pP]assword[^"]?".?:.?")[^"]*"/g, '$1********"');
       }
       // else it is an object...
 
@@ -90,7 +90,7 @@ export class LoggerController extends AdaptableController {
 
       if (e.body) {
         for (const key of Object.keys(e.body)) {
-          if (key === 'password') {
+          if (typeof key === 'string' && key.toLowerCase().includes('password')) {
             e.body[key] = '********';
             break;
           }
@@ -99,7 +99,7 @@ export class LoggerController extends AdaptableController {
 
       if (e.params) {
         for (const key of Object.keys(e.params)) {
-          if (key === 'password') {
+          if (typeof key === 'string' && key.toLowerCase().includes('password')) {
             e.params[key] = '********';
             break;
           }
