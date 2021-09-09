@@ -60,19 +60,21 @@ describe('Cloud Code Logger', () => {
     });
   });
 
-  it('trigger should obfuscate password', done => {
-    Parse.Cloud.beforeSave(Parse.User, req => {
+  it('trigger should obfuscate password', async () => {
+    Parse.Cloud.beforeSave('MyObject', req => {
       return req.object;
     });
 
-    Parse.User.signUp('tester123', 'abc')
-      .then(() => {
-        const entry = spy.calls.mostRecent().args;
-        expect(entry[1]).not.toMatch(/password":"abc/);
-        expect(entry[1]).toMatch(/\*\*\*\*\*\*\*\*/);
-        done();
-      })
-      .then(null, e => done.fail(e));
+    await new Parse.Object('MyObject')
+      .set('password', 'flkmvpop')
+      .set('Password', 'flkmvpop')
+      .set('oldPassword', 'flkmvpop')
+      .set('newPassword2', 'flkmvpop')
+      .save();
+
+    const entry = spy.calls.mostRecent().args;
+    expect(entry[1]).not.toMatch(/flkmvpop/);
+    expect(entry[1]).toMatch(/\*\*\*\*\*\*\*\*/);
   });
 
   it('should expose log to trigger', done => {
