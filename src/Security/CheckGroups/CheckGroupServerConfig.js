@@ -41,7 +41,8 @@ class CheckGroupServerConfig extends CheckGroup {
       }),
       new Check({
         title: 'Security log disabled',
-        warning: 'Security checks in logs may expose vulnerabilities to anyone access to logs.',
+        warning:
+          'Security checks in logs may expose vulnerabilities to anyone with access to logs.',
         solution: "Change Parse Server configuration to 'security.enableCheckLog: false'.",
         check: () => {
           if (config.security && config.security.enableCheckLog) {
@@ -56,6 +57,17 @@ class CheckGroupServerConfig extends CheckGroup {
         solution: "Change Parse Server configuration to 'allowClientClassCreation: false'.",
         check: () => {
           if (config.allowClientClassCreation || config.allowClientClassCreation == null) {
+            throw 1;
+          }
+        },
+      }),
+      new Check({
+        title: 'Users are created without public access',
+        warning:
+          'Users with public read access are exposed to anyone who knows their object IDs, or to anyone who can query the Parse.User class.',
+        solution: "Change Parse Server configuration to 'enforcePrivateUsers: true'.",
+        check: () => {
+          if (!config.enforcePrivateUsers) {
             throw 1;
           }
         },
