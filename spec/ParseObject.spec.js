@@ -24,6 +24,7 @@ describe('Parse.Object testing', () => {
   it('update', function (done) {
     create({ test: 'test' }, function (model) {
       const t2 = new TestObject({ objectId: model.id });
+      t2.assumeCreated();
       t2.set('test', 'changed');
       t2.save().then(function (model) {
         equal(model.get('test'), 'changed', 'Update should have succeeded');
@@ -537,6 +538,7 @@ describe('Parse.Object testing', () => {
       .then(() => {
         const objectId = x1.id;
         const x2 = new Parse.Object('X', { objectId: objectId });
+        x2.assumeCreated();
         x2.addUnique('stuff', 2);
         x2.addUnique('stuff', 4);
         expect(x2.get('stuff')).toEqual([2, 4]);
@@ -575,6 +577,7 @@ describe('Parse.Object testing', () => {
       .then(() => {
         const objectId = x1.id;
         const x2 = new Parse.Object('X', { objectId: objectId });
+        x2.assumeCreated();
         x2.addUnique('stuff', { hello: 'world' });
         x2.addUnique('stuff', { bar: 'baz' });
         expect(x2.get('stuff')).toEqual([{ hello: 'world' }, { bar: 'baz' }]);
@@ -614,6 +617,7 @@ describe('Parse.Object testing', () => {
       .then(() => {
         const objectId = x1.id;
         const x2 = new Parse.Object('X', { objectId: objectId });
+        x2.assumeCreated();
         x2.remove('stuff', { hello: 'world' });
         expect(x2.get('stuff')).toEqual([]);
         return x2.save();
@@ -1299,6 +1303,7 @@ describe('Parse.Object testing', () => {
         itemsAgain.forEach(function (item, i) {
           const newValue = i * 2;
           item.set('x', newValue);
+          item.assumeCreated();
         });
         return Parse.Object.saveAll(itemsAgain);
       })
@@ -1519,6 +1524,7 @@ describe('Parse.Object testing', () => {
         }
         itemsAgain.forEach(function (item, i) {
           item.set('x', i * 2);
+          item.assumeCreated();
         });
         return Parse.Object.saveAll(itemsAgain);
       })
@@ -1751,6 +1757,7 @@ describe('Parse.Object testing', () => {
         const obj2 = new TestObject();
         obj2.id = objAgain.id;
         obj2.increment('someString');
+        obj2.assumeCreated();
         return obj2.save();
       })
       .then(

@@ -298,6 +298,7 @@ describe('Parse.User testing', () => {
     expect(objectId).toBeDefined();
     const user = new Parse.User();
     user.id = objectId;
+    user.assumeCreated();
     const ACL = new Parse.ACL();
     user.setACL(ACL);
     await user.save(null, { useMasterKey: true });
@@ -3908,6 +3909,7 @@ describe('Parse.User testing', () => {
     await reconfigureServer();
     // create a fake user (just so we simulate an object not found)
     const non_existent_user = Parse.User.createWithoutData('fake_id');
+    non_existent_user.assumeCreated();
     try {
       await non_existent_user.destroy({ useMasterKey: true });
       throw '';

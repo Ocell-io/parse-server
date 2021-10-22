@@ -1157,6 +1157,7 @@ describe('Installations', () => {
         const installationObj = Parse.Installation.createWithoutData(
           createResult.response.objectId
         );
+        installationObj.assumeCreated();
         installationObj.set('customField', 'custom value');
         return installationObj.save(null, { useMasterKey: true });
       })

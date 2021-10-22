@@ -637,6 +637,7 @@ describe('miscellaneous', function () {
       const child = object.get('child');
       expect(child instanceof Parse.Object).toBeTruthy();
       child.set('a', 'b');
+      child.assumeCreated();
       return child.save();
     });
 

@@ -1476,6 +1476,7 @@ describe('Cloud Code', () => {
       const CloudIncrementClass = Parse.Object.extend('CloudIncrementClass');
       const obj = new CloudIncrementClass();
       obj.id = req.params.objectId;
+      obj.assumeCreated();
       return obj.save();
     });
 
