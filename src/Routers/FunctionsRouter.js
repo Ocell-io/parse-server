@@ -117,6 +117,32 @@ export class FunctionsRouter extends PromiseRouter {
       },
     };
   }
+  static summarizeObject(obj) {
+    if (obj instanceof Array) {
+      const res = [];
+      for (var i = 0; i < Math.min(3, obj.length); i++) {
+        // Limit logging to the first three elements
+        res.push(FunctionsRouter.summarizeObject(obj[i]));
+      }
+      if (obj.length > 3) res.push('...');
+      return res;
+    }
+    if (typeof obj === 'object' && obj) {
+      // typeof null === "object"
+      const res = {};
+      for (const key of Object.keys(obj)) {
+        res[key] = FunctionsRouter.summarizeObject(obj[key]);
+      }
+      return res;
+    }
+    if (typeof obj === 'string') {
+      // Limit logging to the first 50 characters
+      var res = obj.substr(0, 50);
+      if (obj.length > 50) res += '...';
+      return res;
+    }
+    return obj;
+  }
   static handleCloudFunction(req) {
     const functionName = req.params.functionName;
     const applicationId = req.config.applicationId;
@@ -141,19 +167,17 @@ export class FunctionsRouter extends PromiseRouter {
 
     return new Promise(function (resolve, reject) {
       const userString = req.auth && req.auth.user ? req.auth.user.id : undefined;
-      const cleanInput = logger.truncateLogMessage(JSON.stringify(params));
+      //const cleanInput = logger.truncateLogMessage(JSON.stringify(params));
       const { success, error } = FunctionsRouter.createResponseObject(
         result => {
           try {
-            const cleanResult = logger.truncateLogMessage(JSON.stringify(result.response.result));
-            logger[req.config.logLevels.cloudFunctionSuccess](
-              `Ran cloud function ${functionName} for user ${userString} with:\n  Input: ${cleanInput}\n  Result: ${cleanResult}` /*,
-              {
-                functionName,
-                params,
-                user: userString,
-              }*/
-            );
+            //const cleanResult = logger.truncateLogMessage(JSON.stringify(result.response.result));
+            logger[req.config.logLevels.cloudFunctionSuccess](`Ran cloud function`, {
+              functionName,
+              params: FunctionsRouter.summarizeObject(params),
+              result: FunctionsRouter.summarizeObject(result.response.result),
+              user: userString,
+            });
             resolve(result);
           } catch (e) {
             reject(e);
@@ -161,16 +185,12 @@ export class FunctionsRouter extends PromiseRouter {
         },
         error => {
           try {
-            logger[req.config.logLevels.cloudFunctionError](
-              `Failed running cloud function ${functionName} for user ${userString} with:\n  Input: ${cleanInput}\n  Error: ` +
-                JSON.stringify(error)
-              /*{
-                functionName,
-                error,
-                params,
-                user: userString,
-              }*/
-            );
+            logger[req.config.logLevels.cloudFunctionError]('Failed running cloud function', {
+              functionName,
+              error,
+              params: FunctionsRouter.summarizeObject(params),
+              user: userString,
+            });
             reject(error);
           } catch (e) {
             reject(e);
