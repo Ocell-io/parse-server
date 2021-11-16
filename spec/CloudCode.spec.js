@@ -1781,6 +1781,18 @@ describe('Cloud Code', () => {
     count === 2 ? done() : fail();
   });
 
+  it('beforeSave works even with non-english nested keys', async function () {
+    Parse.Cloud.beforeSave('BeforeSaveTestClass', function () {});
+
+    let obj = new Parse.Object('BeforeSaveTestClass');
+    obj.set('a', {});
+    await obj.save();
+    obj.set('a.ö', {});
+    await obj.save();
+    obj = await new Parse.Query('BeforeSaveTestClass').get(obj.id);
+    expect(obj.get('a')).toEqual({ ö: {} });
+  });
+
   /**
    * Verifies that an afterSave hook throwing an exception
    * will not prevent a successful save response from being returned
