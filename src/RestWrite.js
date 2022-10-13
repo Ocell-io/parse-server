@@ -799,15 +799,17 @@ RestWrite.prototype._validateEmail = function () {
         (Object.keys(this.data.authData).length === 1 &&
           Object.keys(this.data.authData)[0] === 'anonymous')
       ) {
-        // We updated the email, send a new validation
-        const { originalObject, updatedObject } = this.buildParseObjects();
-        const request = {
-          original: originalObject,
-          object: updatedObject,
-          master: this.auth.isMaster,
-          ip: this.config.ip,
-        };
-        return this.config.userController.setEmailVerifyToken(this.data, request, this.storage);
+        // We updated the email, send a new validation unless the master key explicitly suppresses it
+        if (!this.auth.isMaster || !this.data['emailVerified']) {
+          const { originalObject, updatedObject } = this.buildParseObjects();
+          const request = {
+            original: originalObject,
+            object: updatedObject,
+            master: this.auth.isMaster,
+            ip: this.config.ip,
+          };
+          return this.config.userController.setEmailVerifyToken(this.data, request, this.storage);
+        }
       }
     });
 };
@@ -931,31 +933,34 @@ RestWrite.prototype.createSessionTokenIfNeeded = async function () {
   if (this.auth.user && this.data.authData) {
     return;
   }
-  if (
-    !this.storage.authProvider && // signup call, with
-    this.config.preventLoginWithUnverifiedEmail === true && // no login without verification
-    this.config.verifyUserEmails
-  ) {
-    // verification is on
-    this.storage.rejectSignup = true;
-    return;
-  }
-  if (!this.storage.authProvider && this.config.verifyUserEmails) {
-    let shouldPreventUnverifedLogin = this.config.preventLoginWithUnverifiedEmail;
-    if (typeof this.config.preventLoginWithUnverifiedEmail === 'function') {
-      const { originalObject, updatedObject } = this.buildParseObjects();
-      const request = {
-        original: originalObject,
-        object: updatedObject,
-        master: this.auth.isMaster,
-        ip: this.config.ip,
-      };
-      shouldPreventUnverifedLogin = await Promise.resolve(
-        this.config.preventLoginWithUnverifiedEmail(request)
-      );
-    }
-    if (shouldPreventUnverifedLogin === true) {
+  const verificationBypassed = this.auth.isMaster && this.data['emailVerified'];
+  if (!verificationBypassed) {
+    if (
+      !this.storage.authProvider && // signup call, with
+      this.config.preventLoginWithUnverifiedEmail === true && // no login without verification
+      this.config.verifyUserEmails
+    ) {
+      // verification is on
+      this.storage.rejectSignup = true;
       return;
+    }
+    if (!this.storage.authProvider && this.config.verifyUserEmails) {
+      let shouldPreventUnverifedLogin = this.config.preventLoginWithUnverifiedEmail;
+      if (typeof this.config.preventLoginWithUnverifiedEmail === 'function') {
+        const { originalObject, updatedObject } = this.buildParseObjects();
+        const request = {
+          original: originalObject,
+          object: updatedObject,
+          master: this.auth.isMaster,
+          ip: this.config.ip,
+        };
+        shouldPreventUnverifedLogin = await Promise.resolve(
+          this.config.preventLoginWithUnverifiedEmail(request)
+        );
+      }
+      if (shouldPreventUnverifedLogin === true) {
+        return;
+      }
     }
   }
   return this.createSessionToken();
