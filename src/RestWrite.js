@@ -716,9 +716,11 @@ RestWrite.prototype._validateEmail = function () {
         (Object.keys(this.data.authData).length === 1 &&
           Object.keys(this.data.authData)[0] === 'anonymous')
       ) {
-        // We updated the email, send a new validation
-        this.storage['sendVerificationEmail'] = true;
-        this.config.userController.setEmailVerifyToken(this.data);
+        // We updated the email, send a new validation unless the master key explicitly suppresses it
+        if (!this.auth.isMaster || !this.data['emailVerified']) {
+          this.storage['sendVerificationEmail'] = true;
+          this.config.userController.setEmailVerifyToken(this.data);
+        }
       }
     });
 };

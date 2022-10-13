@@ -521,6 +521,80 @@ describe('Email Verification Token Expiration: ', () => {
       });
   });
 
+  it('master key can create users and change the email of a user without triggering a re-verification', done => {
+    const user = new Parse.User();
+
+    let sendEmailCount = 0;
+    const emailAdapter = {
+      sendVerificationEmail: () => {
+        sendEmailCount += 1;
+      },
+      sendPasswordResetEmail: () => {
+        sendEmailCount += 1;
+        return Promise.resolve();
+      },
+      sendMail: () => {
+        sendEmailCount += 1;
+      },
+    };
+    const serverConfig = {
+      appName: 'emailVerifyToken',
+      verifyUserEmails: true,
+      emailAdapter: emailAdapter,
+      emailVerifyTokenValidityDuration: 5, // 5 seconds
+      publicServerURL: 'http://localhost:8378/1',
+    };
+
+    reconfigureServer(serverConfig)
+      .then(() => {
+        user.setUsername('newEmailVerifyTokenOnEmailReset');
+        user.setPassword('expiringToken');
+        user.set('email', 'user@parse.com');
+        user.set('emailVerified', true);
+        return user.save(null, { useMasterKey: true });
+      })
+      .then(() => {
+        const config = Config.get('test');
+        return config.database
+          .find('_User', { username: 'newEmailVerifyTokenOnEmailReset' })
+          .then(results => {
+            return results[0];
+          });
+      })
+      .then(userFromDb => {
+        expect(typeof userFromDb).toBe('object');
+        expect(sendEmailCount).toBe(0);
+        expect(user.get('emailVerified')).toBe(true);
+        expect(user.get('email')).toBe('user@parse.com');
+
+        // change the email
+        user.set('email', 'user2@parse.com');
+        user.set('emailVerified', true);
+        return new Promise(resolve => {
+          setTimeout(() => resolve(user.save(null, { useMasterKey: true })), 500);
+        });
+      })
+      .then(() => {
+        const config = Config.get('test');
+        return config.database
+          .find('_User', { username: 'newEmailVerifyTokenOnEmailReset' })
+          .then(results => {
+            return results[0];
+          });
+      })
+      .then(userAfterEmailReset => {
+        expect(typeof userAfterEmailReset).toBe('object');
+        expect(sendEmailCount).toBe(0);
+        expect(user.get('emailVerified')).toBe(true);
+        expect(user.get('email')).toBe('user2@parse.com');
+        done();
+      })
+      .catch(error => {
+        jfail(error);
+        done();
+      });
+  });
+
   it('should send a new verification email when a resend is requested and the user is UNVERIFIED', done => {
     const user = new Parse.User();
     let sendEmailOptions;
