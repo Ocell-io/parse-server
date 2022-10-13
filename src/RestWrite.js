@@ -550,7 +550,6 @@ RestWrite.prototype.handleAuthData = async function (authData) {
 
   // User found with provided authData
   if (results.length === 1) {
-
     this.storage.authProvider = Object.keys(authData).join(',');
 
     const { hasMutatedAuthData, mutatedAuthData } = Auth.hasMutatedAuthData(
@@ -797,16 +796,17 @@ RestWrite.prototype._validateEmail = function () {
         (Object.keys(this.data.authData).length === 1 &&
           Object.keys(this.data.authData)[0] === 'anonymous')
       ) {
-        // We updated the email, send a new validation
-        const { originalObject, updatedObject } = this.buildParseObjects();
-        const request = {
-          original: originalObject,
-          object: updatedObject,
-          master: this.auth.isMaster,
-          ip: this.config.ip,
-          installationId: this.auth.installationId,
-        };
-        return this.config.userController.setEmailVerifyToken(this.data, request, this.storage);
+        // We updated the email, send a new validation unless the master key explicitly suppresses it
+        if (!this.auth.isMaster || !this.data['emailVerified']) {
+          const { originalObject, updatedObject } = this.buildParseObjects();
+          const request = {
+            original: originalObject,
+            object: updatedObject,
+            master: this.auth.isMaster,
+            ip: this.config.ip,
+          };
+          return this.config.userController.setEmailVerifyToken(this.data, request, this.storage);
+        }
       }
     });
 };
@@ -930,26 +930,34 @@ RestWrite.prototype.createSessionTokenIfNeeded = async function () {
   if (this.auth.user && this.data.authData) {
     return;
   }
-  // If sign-up call
-  if (!this.storage.authProvider) {
-    // Create request object for verification functions
-    const { originalObject, updatedObject } = this.buildParseObjects();
-    const request = {
-      original: originalObject,
-      object: updatedObject,
-      master: this.auth.isMaster,
-      ip: this.config.ip,
-      installationId: this.auth.installationId,
-    };
-    // Get verification conditions which can be booleans or functions; the purpose of this async/await
-    // structure is to avoid unnecessarily executing subsequent functions if previous ones fail in the
-    // conditional statement below, as a developer may decide to execute expensive operations in them
-    const verifyUserEmails = async () => this.config.verifyUserEmails === true || (typeof this.config.verifyUserEmails === 'function' && await Promise.resolve(this.config.verifyUserEmails(request)) === true);
-    const preventLoginWithUnverifiedEmail = async () => this.config.preventLoginWithUnverifiedEmail === true || (typeof this.config.preventLoginWithUnverifiedEmail === 'function' && await Promise.resolve(this.config.preventLoginWithUnverifiedEmail(request)) === true);
-    // If verification is required
-    if (await verifyUserEmails() && await preventLoginWithUnverifiedEmail()) {
+  const verificationBypassed = this.auth.isMaster && this.data['emailVerified'];
+  if (!verificationBypassed) {
+    if (
+      !this.storage.authProvider && // signup call, with
+      this.config.preventLoginWithUnverifiedEmail === true && // no login without verification
+      this.config.verifyUserEmails
+    ) {
+      // verification is on
       this.storage.rejectSignup = true;
       return;
+    }
+    if (!this.storage.authProvider && this.config.verifyUserEmails) {
+      let shouldPreventUnverifedLogin = this.config.preventLoginWithUnverifiedEmail;
+      if (typeof this.config.preventLoginWithUnverifiedEmail === 'function') {
+        const { originalObject, updatedObject } = this.buildParseObjects();
+        const request = {
+          original: originalObject,
+          object: updatedObject,
+          master: this.auth.isMaster,
+          ip: this.config.ip,
+        };
+        shouldPreventUnverifedLogin = await Promise.resolve(
+          this.config.preventLoginWithUnverifiedEmail(request)
+        );
+      }
+      if (shouldPreventUnverifedLogin === true) {
+        return;
+      }
     }
   }
   return this.createSessionToken();
