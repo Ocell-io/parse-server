@@ -540,6 +540,7 @@ describe('Email Verification Token Expiration: ', () => {
     const serverConfig = {
       appName: 'emailVerifyToken',
       verifyUserEmails: true,
+      preventLoginWithUnverifiedEmail: true,
       emailAdapter: emailAdapter,
       emailVerifyTokenValidityDuration: 5, // 5 seconds
       publicServerURL: 'http://localhost:8378/1',
@@ -566,6 +567,7 @@ describe('Email Verification Token Expiration: ', () => {
         expect(sendEmailCount).toBe(0);
         expect(user.get('emailVerified')).toBe(true);
         expect(user.get('email')).toBe('user@parse.com');
+        expect(user.getSessionToken()).toBeDefined();
 
         // change the email
         user.set('email', 'user2@parse.com');
