@@ -1310,7 +1310,8 @@ export default class SchemaController {
     className: string,
     aclGroup: string[],
     operation: string,
-    action?: string
+    action?: string,
+    newKeys?: string[]
   ) {
     if (SchemaController.testPermissions(classPermissions, aclGroup, operation)) {
       return Promise.resolve();
@@ -1370,20 +1371,33 @@ export default class SchemaController {
       }
     }
 
-    throw new Parse.Error(
-      Parse.Error.OPERATION_FORBIDDEN,
-      `Permission denied for action ${operation} on class ${className}.`
-    );
+    var errorMessage;
+    if (operation === 'addField') {
+      errorMessage = `Permission denied for action addField on field(s) ${newKeys.join(
+        ','
+      )} on class ${className}.`;
+    } else {
+      errorMessage = `Permission denied for action ${operation} on class ${className}.`;
+    }
+
+    throw new Parse.Error(Parse.Error.OPERATION_FORBIDDEN, errorMessage);
   }
 
   // Validates an operation passes class-level-permissions set in the schema
-  validatePermission(className: string, aclGroup: string[], operation: string, action?: string) {
+  validatePermission(
+    className: string,
+    aclGroup: string[],
+    operation: string,
+    action?: string,
+    newKeys?: string[] // Only valid for action === 'addField'
+  ) {
     return SchemaController.validatePermission(
       this.getClassLevelPermissions(className),
       className,
       aclGroup,
       operation,
-      action
+      action,
+      newKeys
     );
   }
 
