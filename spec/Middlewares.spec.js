@@ -3,7 +3,6 @@ const AppCache = require('../lib/cache').AppCache;
 
 describe('middlewares', () => {
   let fakeReq, fakeRes;
-
   beforeEach(() => {
     fakeReq = {
       originalUrl: 'http://example.com/parse/',
@@ -117,10 +116,12 @@ describe('middlewares', () => {
     const otherKeys = BodyKeys.filter(
       otherKey => otherKey !== infoKey && otherKey !== 'javascriptKey'
     );
-
     it(`it should pull ${bodyKey} into req.info`, done => {
+      AppCache.put(fakeReq.body._ApplicationId, {
+        masterKeyIps: ['0.0.0.0/0'],
+      });
+      fakeReq.ip = '127.0.0.1';
       fakeReq.body[bodyKey] = keyValue;
-
       middlewares.handleParseHeaders(fakeReq, fakeRes, () => {
         expect(fakeReq.body[bodyKey]).toEqual(undefined);
         expect(fakeReq.info[infoKey]).toEqual(keyValue);
@@ -134,41 +135,69 @@ describe('middlewares', () => {
     });
   });
 
-  it('should not succeed if the ip does not belong to masterKeyIps list', () => {
+  it('should not succeed and log if the ip does not belong to masterKeyIps list', async () => {
+    const logger = require('../lib/logger').logger;
+    spyOn(logger, 'error').and.callFake(() => {});
     AppCache.put(fakeReq.body._ApplicationId, {
       masterKey: 'masterKey',
-      masterKeyIps: ['ip1', 'ip2'],
+      masterKeyIps: ['10.0.0.1'],
     });
-    fakeReq.ip = 'ip3';
+    fakeReq.ip = '127.0.0.1';
     fakeReq.headers['x-parse-master-key'] = 'masterKey';
-    middlewares.handleParseHeaders(fakeReq, fakeRes);
-    expect(fakeRes.status).toHaveBeenCalledWith(403);
+    await new Promise(resolve => middlewares.handleParseHeaders(fakeReq, fakeRes, resolve));
+    expect(fakeReq.auth.isMaster).toBe(false);
+    expect(logger.error).toHaveBeenCalledWith(
+      `Request using master key rejected as the request IP address '127.0.0.1' is not set in Parse Server option 'masterKeyIps'.`
+    );
   });
 
-  it('should succeed if the ip does belong to masterKeyIps list', done => {
+  it('should not succeed if the ip does not belong to masterKeyIps list', async () => {
     AppCache.put(fakeReq.body._ApplicationId, {
       masterKey: 'masterKey',
-      masterKeyIps: ['ip1', 'ip2'],
+      masterKeyIps: ['10.0.0.1'],
     });
-    fakeReq.ip = 'ip1';
+    fakeReq.ip = '127.0.0.1';
     fakeReq.headers['x-parse-master-key'] = 'masterKey';
-    middlewares.handleParseHeaders(fakeReq, fakeRes, () => {
-      expect(fakeRes.status).not.toHaveBeenCalled();
-      done();
-    });
+    await new Promise(resolve => middlewares.handleParseHeaders(fakeReq, fakeRes, resolve));
+    expect(fakeReq.auth.isMaster).toBe(false);
   });
 
-  it('should allow any ip to use masterKey if masterKeyIps is empty', done => {
+  it('should not succeed if the ip does not belong to maintenanceKeyIps list', async () => {
+    const logger = require('../lib/logger').logger;
+    spyOn(logger, 'error').and.callFake(() => {});
+    AppCache.put(fakeReq.body._ApplicationId, {
+      maintenanceKey: 'masterKey',
+      maintenanceKeyIps: ['10.0.0.0', '10.0.0.1'],
+    });
+    fakeReq.ip = '10.0.0.2';
+    fakeReq.headers['x-parse-maintenance-key'] = 'masterKey';
+    await new Promise(resolve => middlewares.handleParseHeaders(fakeReq, fakeRes, resolve));
+    expect(fakeReq.auth.isMaintenance).toBe(false);
+    expect(logger.error).toHaveBeenCalledWith(
+      `Request using maintenance key rejected as the request IP address '10.0.0.2' is not set in Parse Server option 'maintenanceKeyIps'.`
+    );
+  });
+
+  it('should succeed if the ip does belong to masterKeyIps list', async () => {
     AppCache.put(fakeReq.body._ApplicationId, {
       masterKey: 'masterKey',
-      masterKeyIps: [],
+      masterKeyIps: ['10.0.0.1'],
     });
-    fakeReq.ip = 'ip1';
+    fakeReq.ip = '10.0.0.1';
     fakeReq.headers['x-parse-master-key'] = 'masterKey';
-    middlewares.handleParseHeaders(fakeReq, fakeRes, () => {
-      expect(fakeRes.status).not.toHaveBeenCalled();
-      done();
+    await new Promise(resolve => middlewares.handleParseHeaders(fakeReq, fakeRes, resolve));
+    expect(fakeReq.auth.isMaster).toBe(true);
+  });
+
+  it('should allow any ip to use masterKey if masterKeyIps is empty', async () => {
+    AppCache.put(fakeReq.body._ApplicationId, {
+      masterKey: 'masterKey',
+      masterKeyIps: ['0.0.0.0/0'],
     });
+    fakeReq.ip = '10.0.0.1';
+    fakeReq.headers['x-parse-master-key'] = 'masterKey';
+    await new Promise(resolve => middlewares.handleParseHeaders(fakeReq, fakeRes, resolve));
+    expect(fakeReq.auth.isMaster).toBe(true);
   });
 
   it('can set trust proxy', async () => {
