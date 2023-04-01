@@ -386,6 +386,11 @@ export class MongoStorageAdapter implements StorageAdapter {
       .catch(err => this.handleError(err));
   }
 
+  async updateFieldOptions(className: string, fieldName: string, type: any) {
+    const schemaCollection = await this._schemaCollection();
+    await schemaCollection.updateFieldOptions(className, fieldName, type);
+  }
+
   addFieldIfNotExists(className: string, fieldName: string, type: any): Promise<void> {
     return this._schemaCollection()
       .then(schemaCollection => schemaCollection.addFieldIfNotExists(className, fieldName, type))
@@ -498,6 +503,7 @@ export class MongoStorageAdapter implements StorageAdapter {
     const mongoObject = parseObjectToMongoObjectForCreate(className, object, schema);
     return this._adaptiveCollection(className)
       .then(collection => collection.insertOne(mongoObject, transactionalSession))
+      .then(() => ({ ops: [mongoObject] }))
       .catch(error => {
         throw mongoErrorToParse(error);
       })
@@ -521,8 +527,8 @@ export class MongoStorageAdapter implements StorageAdapter {
       })
       .catch(err => this.handleError(err))
       .then(
-        ({ result }) => {
-          if (result.n === 0) {
+        ({ deletedCount }) => {
+          if (deletedCount === 0) {
             throw new Parse.Error(Parse.Error.OBJECT_NOT_FOUND, 'Object not found.');
           }
           return Promise.resolve();
@@ -949,6 +955,9 @@ export class MongoStorageAdapter implements StorageAdapter {
   // an operator in it (like $gt, $lt, etc). Because of this I felt it was easier to make this a
   // recursive method to traverse down to the "leaf node" which is going to be the string.
   _convertToDate(value: any): any {
+    if (value instanceof Date) {
+      return value;
+    }
     if (typeof value === 'string') {
       return new Date(value);
     }

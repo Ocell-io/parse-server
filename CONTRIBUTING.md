@@ -2,7 +2,14 @@
 
 ## Table of Contents <!-- omit in toc -->
 - [Contributing](#contributing)
+  - [Issue vs. Pull Request](#issue-vs-pull-request)
+  - [Templates](#templates)
 - [Why Contributing?](#why-contributing)
+- [Contribution FAQs](#contribution-faqs)
+  - [Reviewer Role](#reviewer-role)
+  - [Review Feedback](#review-feedback)
+  - [Merge Readiness](#merge-readiness)
+  - [Review Validity](#review-validity)
 - [Environment Setup](#environment-setup)
   - [Recommended Tools](#recommended-tools)
   - [Setting up your local machine](#setting-up-your-local-machine)
@@ -20,8 +27,19 @@
   - [Parse Error](#parse-error)
   - [Parse Server Configuration](#parse-server-configuration)
 - [Pull Request](#pull-request)
+  - [Commit Message](#commit-message)
   - [Breaking Change](#breaking-change)
 - [Merging](#merging)
+  - [Breaking Change](#breaking-change-1)
+  - [Reverting](#reverting)
+- [Releasing](#releasing)
+  - [General Considerations](#general-considerations)
+  - [Major Release / Long-Term-Support](#major-release--long-term-support)
+  - [Preparing Release](#preparing-release)
+  - [Publishing Release (forward-merge):](#publishing-release-forward-merge)
+  - [Publishing Hotfix (back-merge):](#publishing-hotfix-back-merge)
+  - [Publishing Major Release (Yearly Release)](#publishing-major-release-yearly-release)
+- [Versioning](#versioning)
 - [Code of Conduct](#code-of-conduct)
 
 ## Contributing
@@ -37,6 +55,22 @@ Together we will plan out the best conceptual approach for your contribution, so
 When you are ready to code, you can find more information about opening a pull request in the [GitHub docs](https://help.github.com/articles/creating-a-pull-request/).
 
 Whether this is your first contribution or you are already an experienced contributor, the Parse Community has your back – don't hesitate to ask for help!
+
+### Issue vs. Pull Request
+
+An issue is required to be linked in every pull request. We understand that no-one likes to create an issue for something that appears to be a simple pull request, but here is why this is beneficial for everyone:
+
+- An issue get more visibility than a pull request as issues can be pinned, receive bounties and it is primarily the issue list that people browse through rather than the more technical pull request list. Visibility is a key aspect so others can weigh in on issues and contribute their opinion.
+- The discussion in the issue is different from the discussion in the pull request. The issue discussion is focused on the issue and how to address it, whereas the discussion in the pull request is focused on a specific implemention. An issue may even have multiple pull requests because either the issue requires multiple implementations or multiple pull requests are opened to compare and test different approaches to later decide for one.
+- High-level conceptual discussions about the issue should be still available, even if a pull request is closed because its appraoch was discarded. If these discussions are in the pull request instead, they can easily become fragmented over multiple pull requests and issues, which can make it very hard to make sense of all aspects of an issue.
+
+### Templates
+
+You are required to use and completely fill out the templates for new issues and pull requests. We understand that no-one enjoys filling out forms, but here is why this is beneficial for everyone:
+
+- It may take you 30 seconds longer, but will save even more time for everyone else trying to understand your issue.
+- It helps to fix issues and merge pull requests faster as reviewers spend less time trying to understand your issue.
+- It makes investigations easier when others try to understand your issue and code changes made even years later.
 
 ## Why Contributing?
 
@@ -58,6 +92,46 @@ Consider the benefits you get:
   You learn to better understand the inner workings of Parse Server, which will help you to write more efficient and resilient code for your own application.
 
 Most importantly, with every contribution you improve your skills so that future contributions take even less time and you get all the benefits above for free — easy choice, right?
+
+## Contribution FAQs
+
+### Reviewer Role
+
+> *Instead of writing review comments back-and-forth, why doesn't the reviewer just write the code themselves?*
+
+A reviewer is already helping you to make a code contribution through their review. A reviewer *may* even help you to write code by actually writing it for you, but is not obliged to do so.
+
+GitHub allows reviewers to suggest and write code changes as part of the review feedback. These code suggestions are likely to contain mistakes due to the lack of code syntax checks when writing code directly on GitHub. You should therefore always review these suggestions before accepting them, ideally in an IDE. If you merge a code suggestion and the CI then fails, take another look at the code change before asking the reviewer for help.
+
+### Review Feedback
+
+> *It takes too much effort to incorporate the review feedback, why why can't you just merge my pull request?*
+
+If you are a new contributor, it's naturally a learning experience for you and therefore takes longer. We welcome contributors of any experience levels and gladly support you in getting familiar with the code base and our quality standards and contribution requirements. In return we expect you to be open to and appreciative of the reviewers' feedback.
+
+In a large pull request, it can be a significant effort to bring it over the finish line. Luckily this is a collaborative environment and others are free to jump in to contribute to the pull request to share the effort. You can either give others access to your fork or they can open their own pull request based on your previous work.
+
+If you are out of resources stay calm, explain your personal constraints (expertise or time) and ask for help. Wasting time by complaining about the amount of review comments will neither use your own time in a meaningful way, nor the time of others who read your complaint.
+
+This is a collaborative enviroment in which everyone works on a common goal - to get a pull request ready for merging. Reviewers are working *with* you to get your pull request ready, *not against you*.
+
+**❗️ Always be mindful that the reviewers' efforts are an integral part of code contribution. Their review is as important as your written code and their review time is a valuable as your coding time.**
+
+### Merge Readiness
+
+> *The feature already works, why do you request more changes instead of just merging my pull request?*
+
+A feature may work for your own use case or in your own environment, but that doesn't necessarily mean that it's ready for merging. Aside from code quality and code style requirements, reviewers also review based on strategic and architectural considerations. It's often easy to just get a feature to work, but it needs to be also maintained in the future, robust therefore well tested and validated, intuitive for other developers to use, well documented, and not cause a forseeable breaking change in the near future.
+
+### Review Validity
+
+> *The reviewer has never worked on the issue and was never part of any previous discussion, why would I care about their opinion?*
+
+It's contrary to an open, collaborative environment to expect others to be involved in an issue or discussion since its beginning. Such a mindset would close out any new views, which are important for a differentiated discussion.
+
+> *The reviewer doesn't have any expertise in that matter, why would I care about their opinion?*
+
+Your arguments must focus on the issue, not on your assumption of someone else's personal experience. We will take immediate and appropriate action in case of personal attacks, regardless of your previous contributions. Personal attacks are not permissible. If you became a victim of personal attacks, you can privately [report](https://docs.github.com/en/communities/maintaining-your-safety-on-github/reporting-abuse-or-spam) the GitHub comment to the Parse Platform PMC.
 
 ## Environment Setup
 
@@ -145,13 +219,15 @@ If your pull request introduces a change that may affect the storage or retrieva
 
   - `it_only_mongodb_version('>=4.4')` // will test with any version of Postgres but only with version >=4.4 of MongoDB; accepts semver notation to specify a version range
   - `it_exclude_mongodb_version('<4.4')` // will test with any version of Postgres and MongoDB, excluding version <4.4 of MongoDB; accepts semver notation to specify a version range
+  - `it_only_postgres_version('>=13')` // will test with any version of Mongo but only with version >=13 of Postgres; accepts semver notation to specify a version range
+  - `it_exclude_postgres_version('<13')` // will test with any version of Postgres and MongoDB, excluding version <13 of Postgres; accepts semver notation to specify a version range
 
 #### Postgres with Docker
 
 [PostGIS images (select one with v2.2 or higher) on docker dashboard](https://hub.docker.com/r/postgis/postgis) is based off of the official [postgres](https://registry.hub.docker.com/_/postgres/) image and will work out-of-the-box (as long as you create a user with the necessary extensions for each of your Parse databases; see below). To launch the compatible Postgres instance, copy and paste the following line into your shell:
 
 ```
-docker run -d --name parse-postgres -p 5432:5432 -e POSTGRES_PASSWORD=password --rm postgis/postgis:11-3.0-alpine && sleep 20 && docker exec -it parse-postgres psql -U postgres -c 'CREATE DATABASE parse_server_postgres_adapter_test_database;' && docker exec -it parse-postgres psql -U postgres -c 'CREATE EXTENSION pgcrypto; CREATE EXTENSION postgis;' -d parse_server_postgres_adapter_test_database && docker exec -it parse-postgres psql -U postgres -c 'CREATE EXTENSION postgis_topology;' -d parse_server_postgres_adapter_test_database
+docker run -d --name parse-postgres -p 5432:5432 -e POSTGRES_PASSWORD=password --rm postgis/postgis:13-3.2-alpine && sleep 20 && docker exec -it parse-postgres psql -U postgres -c 'CREATE DATABASE parse_server_postgres_adapter_test_database;' && docker exec -it parse-postgres psql -U postgres -c 'CREATE EXTENSION pgcrypto; CREATE EXTENSION postgis;' -d parse_server_postgres_adapter_test_database && docker exec -it parse-postgres psql -U postgres -c 'CREATE EXTENSION postgis_topology;' -d parse_server_postgres_adapter_test_database
 ```
 To stop the Postgres instance:
 
@@ -159,7 +235,7 @@ To stop the Postgres instance:
 docker stop parse-postgres
 ```
 
-You can also use the [postgis/postgis:11-2.5-alpine](https://hub.docker.com/r/postgis/postgis) image in a Dockerfile and copy this [script](https://github.com/parse-community/parse-server/blob/master/scripts/before_script_postgres.sh) to the image by adding the following lines:
+You can also use the [postgis/postgis:13-3.2-alpine](https://hub.docker.com/r/postgis/postgis) image in a Dockerfile and copy this [script](https://github.com/parse-community/parse-server/blob/master/scripts/before_script_postgres.sh) to the image by adding the following lines:
 
 ```
 #Install additional scripts. These are run in abc order during initial start
@@ -293,6 +369,8 @@ Introducing new [Parse Server configuration][config] parameters requires the fol
 
 ## Pull Request
 
+### Commit Message
+
 For release automation, the title of pull requests needs to be written in a defined syntax. We loosely follow the [Conventional Commits](https://www.conventionalcommits.org) specification, which defines this syntax:
 
 ```
@@ -300,7 +378,7 @@ For release automation, the title of pull requests needs to be written in a defi
 ```
 
 The _type_ is the category of change that is made, possible types are:
-- `feat` - add a new feature
+- `feat` - add a new feature or improve an existing feature
 - `fix` - fix a bug
 - `refactor` - refactor code without impact on features or performance
 - `docs` - add or edit code comments, documentation, GitHub pages
@@ -332,8 +410,13 @@ If a pull request contains a braking change, the description of the pull request
 
 The following guide is for anyone who merges a contributor pull request into the working branch, the working branch into a release branch, a release branch into another release branch, or any other direct commits such as hotfixes into release branches or the working branch.
 
-- For changelog generation, only the commit message set when merging the pull request is relevant. The title and description of the GitHub pull request as authored by the contributor have no influence on the changelog generation. However, the title of the GitHub pull request should be used as the commit message.
-- If the pull request contains a breaking change, the commit message must contain the phrase `BREAKING CHANGE`, capitalized and without any formatting, followed by a short description of the breaking change and ideally how the developer should address it, all in a single line. This line should contain more details focusing on the "breaking” aspect of the change and is intended to assist the developer in adapting. Keep it concise, as it will become part of the changelog entry, for example:
+- A contributor pull request must be merged into the working branch using `Squash and Merge`, to create a single commit message that describes the change.
+- A release branch or the default branch must be merged into another release branch using `Merge Commit`, to preserve each individual commit message that describes its respective change.
+- For changelog generation, only the commit message set when merging the pull request is relevant. The title and description of the GitHub pull request as authored by the contributor have no influence on the changelog generation. However, the title of the GitHub pull request should be used as the commit message. See the following chapters for considerations in special scenarios, e.g. merging a breaking change or reverting a commit.
+
+### Breaking Change
+
+If the pull request contains a breaking change, the commit message must contain the phrase `BREAKING CHANGE`, capitalized and without any formatting, followed by a short description of the breaking change and ideally how the developer should address it, all in a single line. This line should contain more details focusing on the "breaking” aspect of the change and is intended to assist the developer in adapting. Keep it concise, as it will become part of the changelog entry, for example:
 
   ```
   fix: remove handle from door
@@ -341,8 +424,122 @@ The following guide is for anyone who merges a contributor pull request into the
   BREAKING CHANGE: You cannot open the door anymore by using a handle. See the [#migration guide](http://example.com) for more details.
   ```
   Keep in mind that in a repository with release automation, merging such a commit message will trigger a release with a major version increment.
-- A contributor pull request must be merged into the working branch using `Squash and Merge`, to create a single commit message that describes the change.
-- A release branch or the default branch must be merged into another release branch using `Merge Commit`, to preserve each individual commit message that describes its respective change.
+
+### Reverting
+
+If the commit reverts a previous commit, use the prefix `revert:`, followed by the header of the reverted commit. In the body of the commit message add `This reverts commit <hash>.`, where the hash is the SHA of the commit being reverted. For example:
+
+  ```
+  revert: fix: remove handle from door
+  
+  This reverts commit 1234567890abcdef.
+  ```
+
+⚠️ A `revert` prefix will *always* trigger a release. Generally, a commit that did not trigger a release when it was initially merged should also not trigger a release when it is reverted. For example, do not use the `revert` prefix when reverting a commit that has a `ci` prefix:
+
+  ```
+  ci: add something
+  ```
+  is reverted with:
+  ```
+  ci: remove something
+  ```
+  instead of:
+  ```
+  revert: ci: add something
+  
+  This reverts commit 1234567890abcdef.
+  ```
+
+## Releasing
+
+### General Considerations
+
+- The `package-lock.json` file has to be deleted and recreated by npm from scratch in regular intervals using the `npm i` command. It is not enough to only update the file via automated security pull requests (e.g. dependabot, snyk), that can create inconsistencies between sub-dependencies of a dependency and increase the chances of vulnerabilities. The file should be recreated once every release cycle which is usually monthly.
+
+### Major Release / Long-Term-Support
+
+While the current major version is published on branch `release`, a Long-Term-Support (LTS) version is published on branch `release-#.x.x`, for example `release-4.x.x` for the Parse Server 4.x LTS branch.
+
+### Preparing Release
+
+The following changes are done in the `alpha` branch, before publishing the last `beta` version that will eventually become the major release. This way the changes trickle naturally through all branches and code consistency is ensured among branches.
+
+- Make sure all [deprecations](https://github.com/parse-community/parse-server/blob/alpha/DEPRECATIONS.md) are reflected in code, old code is removed and the deprecations table is updated.
+- Add the future LTS branch `release-#.x.x` to the branch list in [release.config.js](https://github.com/parse-community/parse-server/blob/alpha/release.config.js) so that the branch will later be recognized for release automation.
+
+
+### Publishing Release (forward-merge):
+
+1. Create new temporary branch `build` on branch `beta`.
+2. Create PR to merge `build` into `release`:
+   - PR title: `build: release`
+   - PR description: (leave empty)
+3. Resolve any conflicts:
+   - For conflicts regarding the package version in `package.json` and `package-lock.json` it doesn't matter which version is chosen, as the version will be set by auto-release in a commit after merging. However, for both files the same version should be chosen when resolving the conflict.
+4. Merge PR with a "merge commit", do not "squash and merge":
+   - Commit message: (use PR title)
+   - Description: (leave empty)
+5. Wait for GitHub Action `release-automated` to finish:
+   - If GitHub Action fails, investigate why; manual correction may be needed.
+6. Pull all remote branches into local branches.
+7. Delete temporary branch `build`.
+8. Create new temporary branch `build` on branch `alpha`.
+9. Create PR to merge `build` into `beta`:
+   - PR title: `build: release`
+   - PR description: (leave empty)
+8. Repeat steps 3-7 for PR from step 9.
+
+### Publishing Hotfix (back-merge):
+
+1. Create PR to merge hotfix PR into `release`:
+   - Merge PR following the same rules as any PR would be merged into the working branch `alpha`.
+2. Wait for GitHub Action `release-automated` to finish:
+   - GitHub Action will fail with error `! [rejected] HEAD -> beta (non-fast-forward)`; this is expected as auto-release currently cannot fully handle back-merging; docker will not publish the new release, so this has to be done manually using the GitHub workflow `release-manual-docker` and entering the version tag that has been created by auto-release.
+3. Pull all remote branches into local branches.
+4. Create a new temporary branch `backmerge` on branch `release`.
+5. Create PR to merge `backmerge` into `beta`:
+   - PR title: `refactor: <commit-summary>` where `<commit-summary>` is the commit summary of step 1. The commit type needs to be `refactor`, otherwise the commit will show in the changelog of the `release` branch, once the `beta` branch is merged into release; this would a duplicate entry because the same changelog entry has already been generated when the PR was merged into the `release` branch in step 1.
+   - PR description: (leave empty)
+6. Resolve any conflicts:
+   - During back-merging, usually all changes are preserved; current changes come from the hotfix in the `release` branch, the incoming changes come from the `beta` branch usually being ahead of the `release` branch. This makes back-merging so complex and bug-prone and is the main reason why it should be avoided if possible.
+7. Merge PR with "squash and merge", do not do a "merge commit":
+   - Commit message: (use PR title)
+   - Description: (leave empty)
+  
+   ℹ️ Merging this PR will not trigger a release; the back-merge will not appear in changelogs of the `beta`, `alpha` branches; the back-merged fix will be an undocumented change of these branches' next releases; if necessary, the change needs to be added manually to the pre-release changelogs *after* the next pre-releases.
+8. Delete temporary branch `backmerge`.
+10. Create a new temporary branch `backmerge` on branch `beta`.
+11. Repeat steps 4-8 to merge PR into `alpha`.
+
+⚠️ Long-term-support branches are excluded from the processes above and handled individually as they do not have pre-releases branches and are not considered part of the current codebase anymore. It may be necessary to significantly adapt a PR for a LTS branch due to the differences in codebase and CI tests. This adaption should be done in advance before merging any related PR, especially for security fixes, as to not publish a vulnerability while it may still take significant time to adapt the fix for the older codebase of a LTS branch.
+
+### Publishing Major Release (Yearly Release)
+
+1. Create LTS branch `release-#.x.x` off the latest version tag on `release` branch.
+2. Create temporary branch `build-release` off branch `beta` and create a pull request with `release` as the base branch.
+3. Merge branch `build-release` into `release`. Given that there will be breaking changes, a new major release will be created. In the unlikely case that there have been no breaking changes between the previous major release and the upcoming release, a major version increment has to be triggered manually. See the docs of the release automation framework for how to do that.
+
+## Versioning
+
+> The following versioning system is applied since Parse Server 5.0.0 and does not necessarily apply to previous releases.
+
+Parse Server follows [semantic versioning](https://semver.org) with a flavor of [calendric versioning](https://calver.org). Semantic versioning makes Parse Server easy to upgrade because breaking changes only occur in major releases. Calendric versioning gives an additional sense of how old a Parse Server release is and allows for Long-Term Support of previous major releases.
+
+Example version: `5.0.0-alpha.1`
+
+Syntax: `[major]`**.**`[minor]`**.**`[patch]`**-**`[pre-release-label]`**.**`[pre-release-increment]`
+
+- The `major` version increments with the first release of every year and may include changes that are *not backwards compatible*.
+- The `minor` version increments during the year and may include new features or improvements of existing features that are backwards compatible.
+- The `patch` version increments during the year and may include bug fixes that are backwards compatible.
+- The `pre-release-label` is optional for pre-release versions such as:
+  - `-alpha` (likely to contain bugs, likely to change in features until release)
+  - `-beta` (likely to contain bugs, no change in features until release)
+- The `[pre-release-increment]` is a number that increments with every new version of a pre-release
+
+Exceptions:
+- The `major` version may increment during the year in the unlikely event that a breaking change is so urgent that it cannot wait for the next yearly release. An example would be a vulnerability fix that leads to an unavoidable breaking change. However, security requirements depend on the application and not every vulnerability may affect every deployment, depending on the features used. Therefore we usually prefer to deprecate insecure functionality and introduce the breaking change following our [deprecation policy](#deprecation-policy).
 
 ## Code of Conduct
 

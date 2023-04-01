@@ -462,6 +462,26 @@ describe('server', () => {
       .then(done);
   });
 
+  it('fails if default limit is negative', async () => {
+    await expectAsync(reconfigureServer({ defaultLimit: -1 })).toBeRejectedWith(
+      'Default limit must be a value greater than 0.'
+    );
+  });
+
+  it('fails if default limit is wrong type', async () => {
+    for (const value of ['invalid', {}, [], true]) {
+      await expectAsync(reconfigureServer({ defaultLimit: value })).toBeRejectedWith(
+        'Default limit must be a number.'
+      );
+    }
+  });
+
+  it('fails if default limit is zero', async () => {
+    await expectAsync(reconfigureServer({ defaultLimit: 0 })).toBeRejectedWith(
+      'Default limit must be a value greater than 0.'
+    );
+  });
+
   it('fails if maxLimit is negative', done => {
     reconfigureServer({ maxLimit: -100 }).catch(error => {
       expect(error).toEqual('Max limit must be a value greater than 0.');
@@ -533,6 +553,7 @@ describe('server', () => {
 
   it('should not fail when Google signin is introduced without the optional clientId', done => {
     const jwt = require('jsonwebtoken');
+    const authUtils = require('../lib/Adapters/Auth/utils');
 
     reconfigureServer({
       auth: { google: {} },
@@ -545,7 +566,7 @@ describe('server', () => {
           sub: 'the_user_id',
         };
         const fakeDecodedToken = { header: { kid: '123', alg: 'RS256' } };
-        spyOn(jwt, 'decode').and.callFake(() => fakeDecodedToken);
+        spyOn(authUtils, 'getHeaderFromToken').and.callFake(() => fakeDecodedToken);
         spyOn(jwt, 'verify').and.callFake(() => fakeClaim);
         const user = new Parse.User();
         user

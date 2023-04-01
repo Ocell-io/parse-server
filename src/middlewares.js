@@ -6,6 +6,7 @@ import ClientSDK from './ClientSDK';
 import defaultLogger from './logger';
 import rest from './rest';
 import MongoStorageAdapter from './Adapters/Storage/Mongo/MongoStorageAdapter';
+import PostgresStorageAdapter from './Adapters/Storage/Postgres/PostgresStorageAdapter';
 
 export const DEFAULT_ALLOWED_HEADERS =
   'X-Parse-Master-Key, X-Parse-REST-API-Key, X-Parse-Javascript-Key, X-Parse-Application-Id, X-Parse-Client-Version, X-Parse-Session-Token, X-Requested-With, X-Parse-Revocable-Session, X-Parse-Request-Id, Content-Type, Pragma, Cache-Control';
@@ -279,22 +280,7 @@ export function handleParseHeaders(req, res, next) {
 }
 
 function getClientIp(req) {
-  if (req.headers['x-forwarded-for']) {
-    // try to get from x-forwared-for if it set (behind reverse proxy)
-    return req.headers['x-forwarded-for'].split(',')[0];
-  } else if (req.connection && req.connection.remoteAddress) {
-    // no proxy, try getting from connection.remoteAddress
-    return req.connection.remoteAddress;
-  } else if (req.socket) {
-    // try to get it from req.socket
-    return req.socket.remoteAddress;
-  } else if (req.connection && req.connection.socket) {
-    // try to get it form the connection.socket
-    return req.connection.socket.remoteAddress;
-  } else {
-    // if non above, fallback.
-    return req.ip;
-  }
+  return req.ip;
 }
 
 function httpAuth(req) {
@@ -431,7 +417,12 @@ export function promiseEnforceMasterKeyAccess(request) {
  */
 export function promiseEnsureIdempotency(req) {
   // Enable feature only for MongoDB
-  if (!(req.config.database.adapter instanceof MongoStorageAdapter)) {
+  if (
+    !(
+      req.config.database.adapter instanceof MongoStorageAdapter ||
+      req.config.database.adapter instanceof PostgresStorageAdapter
+    )
+  ) {
     return Promise.resolve();
   }
   // Get parameters

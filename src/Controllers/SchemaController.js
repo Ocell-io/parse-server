@@ -150,9 +150,15 @@ const defaultColumns: { [string]: SchemaFields } = Object.freeze({
   },
 });
 
+// fields required for read or write operations on their respective classes.
 const requiredColumns = Object.freeze({
-  _Product: ['productIdentifier', 'icon', 'order', 'title', 'subtitle'],
-  _Role: ['name', 'ACL'],
+  read: {
+    _User: ['username'],
+  },
+  write: {
+    _Product: ['productIdentifier', 'icon', 'order', 'title', 'subtitle'],
+    _Role: ['name', 'ACL'],
+  },
 });
 
 const invalidColumns = ['length'];
@@ -831,7 +837,11 @@ export default class SchemaController {
         const existingFields = schema.fields;
         Object.keys(submittedFields).forEach(name => {
           const field = submittedFields[name];
-          if (existingFields[name] && field.__op !== 'Delete') {
+          if (
+            existingFields[name] &&
+            existingFields[name].type !== field.type &&
+            field.__op !== 'Delete'
+          ) {
             throw new Parse.Error(255, `Field ${name} exists, cannot update.`);
           }
           if (!existingFields[name] && field.__op === 'Delete') {
@@ -1057,7 +1067,12 @@ export default class SchemaController {
   // object if the provided className-fieldName-type tuple is valid.
   // The className must already be validated.
   // If 'freeze' is true, refuse to update the schema for this field.
-  enforceFieldExists(className: string, fieldName: string, type: string | SchemaField) {
+  enforceFieldExists(
+    className: string,
+    fieldName: string,
+    type: string | SchemaField,
+    isValidation?: boolean
+  ) {
     if (fieldName.indexOf('.') > 0) {
       // subdocument key (x.y) => ok if x is of type 'object'
       fieldName = fieldName.split('.')[0];
@@ -1101,7 +1116,14 @@ export default class SchemaController {
           )} but got ${typeToString(type)}`
         );
       }
-      return undefined;
+      // If type options do not change
+      // we can safely return
+      if (isValidation || JSON.stringify(expectedType) === JSON.stringify(type)) {
+        return undefined;
+      }
+      // Field options are may be changed
+      // ensure to have an update to date schema field
+      return this._dbAdapter.updateFieldOptions(className, fieldName, type);
     }
 
     return this._dbAdapter
@@ -1236,7 +1258,7 @@ export default class SchemaController {
         // Every object has ACL implicitly.
         continue;
       }
-      promises.push(schema.enforceFieldExists(className, fieldName, expected));
+      promises.push(schema.enforceFieldExists(className, fieldName, expected, true));
     }
     const results = await Promise.all(promises);
     const enforceFields = results.filter(result => !!result);
@@ -1253,7 +1275,7 @@ export default class SchemaController {
 
   // Validates that all the properties are set for the object
   validateRequiredColumns(className: string, object: any, query: any) {
-    const columns = requiredColumns[className];
+    const columns = requiredColumns.write[className];
     if (!columns || columns.length == 0) {
       return Promise.resolve(this);
     }
@@ -1598,4 +1620,5 @@ export {
   convertSchemaToAdapterSchema,
   VolatileClassesSchemas,
   SchemaController,
+  requiredColumns,
 };

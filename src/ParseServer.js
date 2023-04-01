@@ -44,6 +44,7 @@ import { ParseGraphQLServer } from './GraphQL/ParseGraphQLServer';
 import { SecurityRouter } from './Routers/SecurityRouter';
 import CheckRunner from './Security/CheckRunner';
 import Deprecator from './Deprecator/Deprecator';
+import { DefinedSchemas } from './SchemaMigrations/DefinedSchemas';
 
 // Mutate the Parse object to add the Cloud Code handlers
 addParseCloud();
@@ -68,6 +69,7 @@ class ParseServer {
       javascriptKey,
       serverURL = requiredParameter('You must provide a serverURL!'),
       serverStartComplete,
+      schema,
     } = options;
     // Initialize the node client SDK automatically
     Parse.initialize(appId, javascriptKey || 'unused', masterKey);
@@ -84,7 +86,10 @@ class ParseServer {
     databaseController
       .performInitialization()
       .then(() => hooksController.load())
-      .then(() => {
+      .then(async () => {
+        if (schema) {
+          await new DefinedSchemas(schema, this.config).execute();
+        }
         if (serverStartComplete) {
           serverStartComplete();
         }
@@ -103,11 +108,7 @@ class ParseServer {
       if (typeof cloud === 'function') {
         cloud(Parse);
       } else if (typeof cloud === 'string') {
-        if (process.env.npm_package_type === 'module') {
-          import(path.resolve(process.cwd(), cloud));
-        } else {
-          require(path.resolve(process.cwd(), cloud));
-        }
+        require(path.resolve(process.cwd(), cloud));
       } else {
         throw "argument 'cloud' must either be a string or a function";
       }
@@ -303,6 +304,9 @@ class ParseServer {
         options
       );
     }
+    if (options.trustProxy) {
+      app.set('trust proxy', options.trustProxy);
+    }
     /* istanbul ignore next */
     if (!process.env.TESTING) {
       configureListeners(this);
@@ -373,6 +377,16 @@ class ParseServer {
 
 function addParseCloud() {
   const ParseCloud = require('./cloud-code/Parse.Cloud');
+  Object.defineProperty(Parse, 'Server', {
+    get() {
+      return Config.get(Parse.applicationId);
+    },
+    set(newVal) {
+      newVal.appId = Parse.applicationId;
+      Config.put(newVal);
+    },
+    configurable: true,
+  });
   Object.assign(Parse.Cloud, ParseCloud);
   global.Parse = Parse;
 }

@@ -1,3 +1,4 @@
+// @flow
 import { AnalyticsAdapter } from '../Adapters/Analytics/AnalyticsAdapter';
 import { FilesAdapter } from '../Adapters/Files/FilesAdapter';
 import { LoggerAdapter } from '../Adapters/Logger/LoggerAdapter';
@@ -8,11 +9,36 @@ import { PubSubAdapter } from '../Adapters/PubSub/PubSubAdapter';
 import { WSSAdapter } from '../Adapters/WebSocketServer/WSSAdapter';
 import { CheckGroup } from '../Security/CheckGroup';
 
-// @flow
+export interface SchemaOptions {
+  /* Rest representation on Parse.Schema https://docs.parseplatform.org/rest/guide/#adding-a-schema
+  :DEFAULT: [] */
+  definitions: any;
+  /* Is true if Parse Server should exit if schema update fail.
+  :DEFAULT: false */
+  strict: ?boolean;
+  /* Is true if Parse Server should delete any fields not defined in a schema definition. This should only be used during development.
+  :DEFAULT: false */
+  deleteExtraFields: ?boolean;
+  /* Is true if Parse Server should recreate any fields that are different between the current database schema and theschema definition. This should only be used during development.
+  :DEFAULT: false */
+  recreateModifiedFields: ?boolean;
+  /* Is true if Parse Server will reject any attempts to modify the schema while the server is running.
+  :DEFAULT: false */
+  lockSchemas: ?boolean;
+  /* Execute a callback before running schema migrations. */
+  beforeMigration: ?() => void | Promise<void>;
+  /* Execute a callback after running schema migrations. */
+  afterMigration: ?() => void | Promise<void>;
+}
+
 type Adapter<T> = string | any | T;
 type NumberOrBoolean = number | boolean;
 type NumberOrString = number | string;
 type ProtectedFields = any;
+type RequestKeywordDenylist = {
+  key: string | any,
+  value: any,
+};
 
 export interface ParseServerOptions {
   /* Your Parse Application ID
@@ -66,7 +92,7 @@ export interface ParseServerOptions {
   /* Options to pass to the database client
   :ENV: PARSE_SERVER_DATABASE_OPTIONS */
   databaseOptions: ?DatabaseOptions;
-  /* Adapter module for the database */
+  /* Adapter module for the database; any options that are not explicitly described here are passed directly to the database client. */
   databaseAdapter: ?Adapter<StorageAdapter>;
   /* Full path to your cloud code main.js */
   cloud: ?string;
@@ -114,7 +140,7 @@ export interface ParseServerOptions {
   allowCustomObjectId: ?boolean;
   /* Configuration for your authentication providers, as stringified JSON. See http://docs.parseplatform.org/parse-server/guide/#oauth-and-3rd-party-authentication
   :ENV: PARSE_SERVER_AUTH_PROVIDERS */
-  auth: ?any;
+  auth: ?(AuthAdapter[]);
   /* Max file size for uploads, defaults to 20mb
   :DEFAULT: 20mb */
   maxUploadSize: ?string;
@@ -168,6 +194,9 @@ export interface ParseServerOptions {
   /* Session duration, in seconds, defaults to 1 year
   :DEFAULT: 31536000 */
   sessionLength: ?number;
+  /* Default value for limit option on queries, defaults to `100`.
+  :DEFAULT: 100 */
+  defaultLimit: ?number;
   /* Max value for limit option on queries, defaults to unlimited */
   maxLimit: ?number;
   /* Sets whether we should expire the inactive sessions, defaults to true. If false, all new sessions are created with no expiration date.
@@ -209,6 +238,9 @@ export interface ParseServerOptions {
   cluster: ?NumberOrBoolean;
   /* middleware for express server, can be string or function */
   middleware: ?((() => void) | string);
+  /* The trust proxy settings. It is important to understand the exact setup of the reverse proxy, since this setting will trust values provided in the Parse Server API request. See the <a href="https://expressjs.com/en/guide/behind-proxies.html">express trust proxy settings</a> documentation. Defaults to `false`.
+  :DEFAULT: false */
+  trustProxy: ?any;
   /* Starts the liveQuery server */
   startLiveQueryServer: ?boolean;
   /* Live query server configuration options (will start the liveQuery server) */
@@ -241,6 +273,10 @@ export interface ParseServerOptions {
   playgroundPath: ?string;
   /* Callback when server has started */
   serverStartComplete: ?(error: ?Error) => void;
+  /* Defined schema
+  :ENV: PARSE_SERVER_SCHEMA
+  */
+  schema: ?SchemaOptions;
   /* Callback when server has closed */
   serverCloseComplete: ?() => void;
   /* The security options to identify and report weak security settings.
@@ -249,6 +285,9 @@ export interface ParseServerOptions {
   /* Set to true if new users should be created without public read and write access.
   :DEFAULT: false */
   enforcePrivateUsers: ?boolean;
+  /* An array of keys and values that are prohibited in database read and write requests to prevent potential security vulnerabilities. It is possible to specify only a key (`{"key":"..."}`), only a value (`{"value":"..."}`) or a key-value pair (`{"key":"...","value":"..."}`). The specification can use the following types: `boolean`, `numeric` or `string`, where `string` will be interpreted as a regex notation. Request data is deep-scanned for matching definitions to detect also any nested occurrences. Defaults are patterns that are likely to be used in malicious requests. Setting this option will override the default patterns.
+  :DEFAULT: [{"key":"_bsontype","value":"Code"},{"key":"constructor"},{"key":"__proto__"}] */
+  requestKeywordDenylist: ?(RequestKeywordDenylist[]);
 }
 
 export interface SecurityOptions {
@@ -472,4 +511,12 @@ export interface DatabaseOptions {
   /* Enables database real-time hooks to update single schema cache. Set to `true` if using multiple Parse Servers instances connected to the same database. Failing to do so will cause a schema change to not propagate to all instances and re-syncing will only happen when the instances restart. To use this feature with MongoDB, a replica set cluster with [change stream](https://docs.mongodb.com/manual/changeStreams/#availability) support is required.
   :DEFAULT: false */
   enableSchemaHooks: ?boolean;
+}
+
+export interface AuthAdapter {
+  /* Is `true` if the auth adapter is enabled, `false` otherwise.
+  :DEFAULT: true
+  :ENV:
+  */
+  enabled: ?boolean;
 }
