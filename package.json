@@ -1,6 +1,6 @@
 {
   "name": "@ocell/parse-server",
-  "version": "6.1.0-alpha.7-ocell1",
+  "version": "6.1.0-alpha.7",
   "description": "An express module providing a Parse-compatible API server",
   "main": "lib/index.js",
   "repository": {
@@ -48,7 +48,7 @@
     "mime": "3.0.0",
     "mongodb": "4.10.0",
     "mustache": "4.2.0",
-    "parse": "git+https://github.com/Ocell-io/Parse-SDK-JS.git#3f6250955e82741b86dd23c631b8a1cdb37d3e9f",
+    "@ocell/parse": "4.0.1",
     "path-to-regexp": "0.1.7",
     "pg-monitor": "2.0.0",
     "pg-promise": "11.3.0",
