@@ -433,15 +433,18 @@ export class UsersRouter extends ClassesRouter {
         'you must provide a valid email string'
       );
     }
+    logger.info(`Got password reset request for "${email}"`);
     const userController = req.config.userController;
     try {
       await userController.sendPasswordResetEmail(email);
+      logger.info(`Sent password reset email to "${email}"`);
       return {
         response: {},
       };
     } catch (err) {
       if (err.code === Parse.Error.OBJECT_NOT_FOUND) {
         if (req.config.passwordPolicy?.resetPasswordSuccessOnInvalidEmail ?? true) {
+          logger.warn(`User not found for password reset "${email}"`);
           return {
             response: {},
           };
