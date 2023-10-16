@@ -377,7 +377,7 @@ function userIdForLog(auth) {
   return auth && auth.user ? auth.user.id : undefined;
 }
 
-function logTriggerAfterHook(triggerType, className, input, auth, logLevel) {
+/*function logTriggerAfterHook(triggerType, className, input, auth, logLevel) {
   const cleanInput = logger.truncateLogMessage(JSON.stringify(input));
   logger[logLevel](
     `${triggerType} triggered for ${className} for user ${userIdForLog(
@@ -404,7 +404,7 @@ function logTriggerSuccessBeforeHook(triggerType, className, input, result, auth
       user: userIdForLog(auth),
     }
   );
-}
+}*/
 
 function logTriggerErrorBeforeHook(triggerType, className, input, auth, error, logLevel) {
   const cleanInput = logger.truncateLogMessage(JSON.stringify(input));
@@ -448,14 +448,14 @@ export function maybeRunAfterFindTrigger(
         reject(error);
       }
     );
-    logTriggerSuccessBeforeHook(
+    /*logTriggerSuccessBeforeHook(
       triggerType,
       className,
       'AfterFind',
       JSON.stringify(objects),
       auth,
       config.logLevels.triggerBeforeSuccess
-    );
+    );*/
     request.objects = objects.map(object => {
       //setting the class name to transform into parse object
       object.className = className;
@@ -478,7 +478,7 @@ export function maybeRunAfterFindTrigger(
         return response;
       })
       .then(success, error);
-  }).then(results => {
+  }) /*.then(results => {
     logTriggerAfterHook(
       triggerType,
       className,
@@ -487,7 +487,7 @@ export function maybeRunAfterFindTrigger(
       config.logLevels.triggerAfter
     );
     return results;
-  });
+  })*/;
 }
 
 export function maybeRunQueryTrigger(
@@ -856,7 +856,7 @@ export function maybeRunTrigger(
     var { success, error } = getResponseObject(
       request,
       object => {
-        logTriggerSuccessBeforeHook(
+        /*logTriggerSuccessBeforeHook(
           triggerType,
           parseObject.className,
           parseObject.toJSON(),
@@ -865,7 +865,7 @@ export function maybeRunTrigger(
           triggerType.startsWith('after')
             ? config.logLevels.triggerAfter
             : config.logLevels.triggerBeforeSuccess
-        );
+        );*/
         if (
           triggerType === Types.beforeSave ||
           triggerType === Types.afterSave ||
@@ -903,7 +903,7 @@ export function maybeRunTrigger(
           return Promise.resolve();
         }
         const promise = trigger(request);
-        if (
+        /*if (
           triggerType === Types.afterSave ||
           triggerType === Types.afterDelete ||
           triggerType === Types.afterLogin
@@ -915,7 +915,7 @@ export function maybeRunTrigger(
             auth,
             config.logLevels.triggerAfter
           );
-        }
+        }*/
         // beforeSave is expected to return null (nothing)
         if (triggerType === Types.beforeSave) {
           if (promise && typeof promise.then === 'function') {
@@ -989,14 +989,14 @@ export async function maybeRunFileTrigger(triggerType, fileObject, config, auth)
         return fileObject;
       }
       const result = await fileTrigger(request);
-      logTriggerSuccessBeforeHook(
+      /*logTriggerSuccessBeforeHook(
         triggerType,
         'Parse.File',
         { ...fileObject.file.toJSON(), fileSize: fileObject.fileSize },
         result,
         auth,
         config.logLevels.triggerBeforeSuccess
-      );
+      );*/
       return result || fileObject;
     } catch (error) {
       logTriggerErrorBeforeHook(
