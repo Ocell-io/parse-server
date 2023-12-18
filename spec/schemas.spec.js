@@ -1828,7 +1828,9 @@ describe('schemas', () => {
           done();
         },
         err => {
-          expect(err.message).toEqual('Permission denied for action addField on class AClass.');
+          expect(err.message).toEqual(
+            'Permission denied for action addField on field(s) hello on class AClass.'
+          );
           done();
         }
       );
