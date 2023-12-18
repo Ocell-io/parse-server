@@ -36,7 +36,7 @@ const defaultColumns: { [string]: SchemaFields } = Object.freeze({
     objectId: { type: 'String' },
     createdAt: { type: 'Date' },
     updatedAt: { type: 'Date' },
-    ACL: { type: 'Object' },
+    ACL: { type: 'ACL' },
   },
   // The additional default columns for the _User collection (in addition to DefaultCols)
   _User: {
@@ -520,7 +520,7 @@ const convertAdapterSchemaToParseSchema = ({ ...schema }) => {
   delete schema.fields._rperm;
   delete schema.fields._wperm;
 
-  schema.fields.ACL = { type: 'Object' };
+  schema.fields.ACL = { type: 'ACL' };
 
   if (schema.className === '_User') {
     delete schema.fields.authData; //Auth data is implicit

@@ -57,7 +57,7 @@ function mongoSchemaFieldsToParseSchemaFields(schema) {
     }
     return obj;
   }, {});
-  response.ACL = { type: 'Object' };
+  response.ACL = { type: 'ACL' };
   response.createdAt = { type: 'Date' };
   response.updatedAt = { type: 'Date' };
   response.objectId = { type: 'String' };
