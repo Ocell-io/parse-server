@@ -1,11 +1,11 @@
 {
-  "name": "parse-server",
-  "version": "7.3.0",
+  "name": "@ocell/parse-server",
+  "version": "7.3.0-ocell-1",
   "description": "An express module providing a Parse-compatible API server",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/parse-community/parse-server"
+    "url": "https://github.com/Ocell-io/parse-server"
   },
   "files": [
     "bin/",
