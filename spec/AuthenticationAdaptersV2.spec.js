@@ -571,6 +571,7 @@ describe('Auth Adapter features', () => {
     });
 
     const user2 = new Parse.User();
+    user2.assumeCreated();
     user2.id = user.id;
     await user2.save(
       {

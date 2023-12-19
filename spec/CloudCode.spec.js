@@ -1392,6 +1392,7 @@ describe('Cloud Code', () => {
       async req => {
         expect(req.params.object instanceof Parse.Object).toBeTrue();
         req.params.object.set('deleted', true);
+        req.params.object.assumeCreated();
         await req.params.object.save(null, { useMasterKey: true });
         return 'Object deleted';
       },
@@ -1570,6 +1571,7 @@ describe('Cloud Code', () => {
       const CloudIncrementClass = Parse.Object.extend('CloudIncrementClass');
       const obj = new CloudIncrementClass();
       obj.id = req.params.objectId;
+      obj.assumeCreated();
       return obj.save();
     });
 
