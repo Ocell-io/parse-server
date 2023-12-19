@@ -1158,6 +1158,7 @@ describe('Installations', () => {
           createResult.response.objectId
         );
         installationObj.set('customField', 'custom value');
+        installationObj.assumeCreated();
         return installationObj.save(null, { useMasterKey: true });
       })
       .then(updateResult => {
