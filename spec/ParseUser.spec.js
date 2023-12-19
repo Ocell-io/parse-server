@@ -386,6 +386,7 @@ describe('Parse.User testing', () => {
     user.id = objectId;
     const ACL = new Parse.ACL();
     user.setACL(ACL);
+    user.assumeCreated();
     await user.save(null, { useMasterKey: true });
     // update the user
     const options = {
