@@ -48,7 +48,7 @@
     "mime": "3.0.0",
     "mongodb": "4.10.0",
     "mustache": "4.2.0",
-    "parse": "git+https://github.com/Ocell-io/Parse-SDK-JS.git#a3584447f1b4c23467c03a06bb64ac76b85daffc",
+    "parse": "git+https://github.com/Ocell-io/Parse-SDK-JS.git#6326f14aec7bf9abc10d09b02329ff1004bc5a4f",
     "path-to-regexp": "0.1.7",
     "pg-monitor": "2.0.0",
     "pg-promise": "11.3.0",
