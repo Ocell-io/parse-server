@@ -164,13 +164,19 @@ const getAuthForSessionToken = async function ({
   }
 
   if (results.length !== 1 || !results[0]['user']) {
-    throw new Parse.Error(Parse.Error.INVALID_SESSION_TOKEN, 'Invalid session token');
+    throw new Parse.Error(
+      Parse.Error.INVALID_SESSION_TOKEN,
+      'Invalid session token: ' + sessionToken
+    );
   }
   const session = results[0];
   const now = new Date(),
     expiresAt = session.expiresAt ? new Date(session.expiresAt.iso) : undefined;
   if (expiresAt < now) {
-    throw new Parse.Error(Parse.Error.INVALID_SESSION_TOKEN, 'Session token is expired.');
+    throw new Parse.Error(
+      Parse.Error.INVALID_SESSION_TOKEN,
+      'Session token is expired: ' + sessionToken
+    );
   }
   const obj = session.user;
   delete obj.password;
