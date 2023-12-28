@@ -380,9 +380,9 @@ function userIdForLog(auth) {
 function logTriggerAfterHook(triggerType, className, input, auth, logLevel) {
   const cleanInput = logger.truncateLogMessage(JSON.stringify(input));
   logger[logLevel](
-    `${triggerType} triggered for ${className} for user ${userIdForLog(
-      auth
-    )}:\n  Input: ${cleanInput}`,
+    `${triggerType} triggered for ${className} for user ${userIdForLog(auth)} on object ${
+      input.objectId
+    }:\n  Input: ${cleanInput}`,
     {
       className,
       triggerType,
@@ -395,9 +395,9 @@ function logTriggerSuccessBeforeHook(triggerType, className, input, result, auth
   const cleanInput = logger.truncateLogMessage(JSON.stringify(input));
   const cleanResult = logger.truncateLogMessage(JSON.stringify(result));
   logger[logLevel](
-    `${triggerType} triggered for ${className} for user ${userIdForLog(
-      auth
-    )}:\n  Input: ${cleanInput}\n  Result: ${cleanResult}`,
+    `${triggerType} triggered for ${className} for user ${userIdForLog(auth)} on object ${
+      input.objectId ?? '<no id>'
+    }:\n  Input: ${cleanInput}\n  Result: ${cleanResult}`,
     {
       className,
       triggerType,
@@ -409,9 +409,9 @@ function logTriggerSuccessBeforeHook(triggerType, className, input, result, auth
 function logTriggerErrorBeforeHook(triggerType, className, input, auth, error, logLevel) {
   const cleanInput = logger.truncateLogMessage(JSON.stringify(input));
   logger[logLevel](
-    `${triggerType} failed for ${className} for user ${userIdForLog(
-      auth
-    )}:\n  Input: ${cleanInput}\n  Error: ${JSON.stringify(error)}`,
+    `${triggerType} failed for ${className} for user ${userIdForLog(auth)} on object ${
+      input.objectId ?? '<no id>'
+    }:\n  Input: ${cleanInput}\n  Error: ${JSON.stringify(error)}`,
     {
       className,
       triggerType,

@@ -94,7 +94,7 @@ describe('Cloud Code Logger', () => {
       expect(cloudTriggerMessage[0]).toBe('info');
       expect(cloudTriggerMessage[2].triggerType).toEqual('beforeSave');
       expect(cloudTriggerMessage[1]).toMatch(
-        /beforeSave triggered for MyObject for user [^ ]*\n {2}Input: {}\n {2}Result: {"object":{}}/
+        /beforeSave triggered for MyObject for user [^ ]* on object <no id>:\n {2}Input: {}\n {2}Result: {"object":{}}/
       );
       expect(cloudTriggerMessage[2].user).toBe(user.id);
       expect(errorMessage[0]).toBe('error');
@@ -244,10 +244,14 @@ describe('Cloud Code Logger', () => {
       return {
         beforeSave: spy.calls
           .allArgs()
-          .find(log => log[1].startsWith('beforeSave triggered for TestClass for user '))?.[0],
+          .find(log => log[1].startsWith('beforeSave triggered for TestClass for user'))?.[0],
         afterSave: spy.calls
           .allArgs()
-          .find(log => log[1].startsWith('afterSave triggered for TestClass for user '))?.[0],
+          .find(
+            log =>
+              log[1].match(/afterSave triggered for TestClass for user [^ ]* on object [^ ]*/) !=
+                null && log[1].includes(` on object ${obj.id}:\n`)
+          )?.[0],
       };
     };
 
