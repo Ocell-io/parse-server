@@ -2533,7 +2533,7 @@ describe('Parse.User testing', () => {
             body: JSON.stringify({ foo: 'bar' }),
           }).then(fail, response => {
             const b = response.data;
-            expect(b.error).toBe('Invalid session token');
+            expect(b.error).toBe('Invalid session token: foo');
             request({
               method: 'PUT',
               headers: {
@@ -2624,7 +2624,7 @@ describe('Parse.User testing', () => {
             }).then(fail, response => {
               const b = response.data;
               expect(b.code).toEqual(209);
-              expect(b.error).toBe('Invalid session token');
+              expect(b.error).toBe('Invalid session token: ' + user.getSessionToken());
               done();
             });
           });
@@ -2707,7 +2707,7 @@ describe('Parse.User testing', () => {
         },
         function (err) {
           expect(err.code).toBe(Parse.Error.INVALID_SESSION_TOKEN);
-          expect(err.message).toBe('Invalid session token');
+          expect(err.message).toBe('Invalid session token: ' + sessionToken);
           done();
         }
       );
@@ -2810,7 +2810,7 @@ describe('Parse.User testing', () => {
     }).then(fail, response => {
       const body = response.data;
       expect(body.code).toBe(209);
-      expect(body.error).toBe('Invalid session token');
+      expect(body.error).toBe('Invalid session token: text');
       done();
     });
   });
@@ -3156,7 +3156,7 @@ describe('Parse.User testing', () => {
         },
         error => {
           expect(error.code).toEqual(209);
-          expect(error.message).toEqual('Session token is expired.');
+          expect(error.message).toEqual('Session token is expired: ' + token);
           done();
         }
       )
@@ -4075,12 +4075,14 @@ describe('Parse.User testing', () => {
       expect(e.code).toBe(Parse.Error.OBJECT_NOT_FOUND);
     }
     try {
+      non_existent_user.assumeCreated();
       await non_existent_user.save({}, { useMasterKey: true });
       throw '';
     } catch (e) {
       expect(e.code).toBe(Parse.Error.OBJECT_NOT_FOUND);
     }
     try {
+      non_existent_user.assumeCreated();
       await non_existent_user.save();
       throw '';
     } catch (e) {

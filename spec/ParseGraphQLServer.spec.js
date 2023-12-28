@@ -7424,7 +7424,7 @@ describe('ParseGraphQLServer', () => {
             expect(statusCode).toBe(400);
             expect(result).toEqual({
               code: 209,
-              error: 'Invalid session token',
+              error: 'Invalid session token: ' + sessionToken,
             });
           }
         });
@@ -7601,7 +7601,7 @@ describe('ParseGraphQLServer', () => {
             expect(statusCode).toBe(400);
             expect(result).toEqual({
               code: 209,
-              error: 'Invalid session token',
+              error: 'Invalid session token: foo',
             });
           }
         });
