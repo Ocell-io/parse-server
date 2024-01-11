@@ -177,6 +177,7 @@ export class FunctionsRouter extends PromiseRouter {
               params: FunctionsRouter.summarizeObject(params),
               result: FunctionsRouter.summarizeObject(result.response.result),
               user: userString,
+              sessionId: req.auth?.sessionId,
             });
             resolve(result);
           } catch (e) {
@@ -190,6 +191,7 @@ export class FunctionsRouter extends PromiseRouter {
               error,
               params: FunctionsRouter.summarizeObject(params),
               user: userString,
+              sessionId: req.auth?.sessionId,
             });
             reject(error);
           } catch (e) {

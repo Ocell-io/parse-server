@@ -29,6 +29,7 @@ describe('Auth', () => {
           id: currentUserId,
         },
         installationId: 'installationId',
+        sessionId: 'sessionId',
       });
     });
 
