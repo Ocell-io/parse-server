@@ -17,6 +17,7 @@ function Auth({
   isReadOnly = false,
   user,
   installationId,
+  sessionId,
 }) {
   this.config = config;
   this.cacheController = cacheController || (config && config.cacheController);
@@ -25,6 +26,7 @@ function Auth({
   this.isMaintenance = isMaintenance;
   this.user = user;
   this.isReadOnly = isReadOnly;
+  this.sessionId = sessionId;
 
   // Assuming a users roles won't change during a single request, we'll
   // only load them once.
@@ -120,8 +122,9 @@ const getAuthForSessionToken = async function ({
 }) {
   cacheController = cacheController || (config && config.cacheController);
   if (cacheController) {
-    const userJSON = await cacheController.user.get(sessionToken);
-    if (userJSON) {
+    const cachedSession = await cacheController.user.get(sessionToken);
+    if (cachedSession) {
+      const userJSON = { ...cachedSession, sessionId: undefined };
       const cachedUser = Parse.Object.fromJSON(userJSON);
       renewSessionIfNeeded({ config, sessionToken });
       return Promise.resolve(
@@ -131,6 +134,7 @@ const getAuthForSessionToken = async function ({
           isMaster: false,
           installationId,
           user: cachedUser,
+          sessionId: cachedSession.sessionId,
         })
       );
     }
@@ -182,6 +186,7 @@ const getAuthForSessionToken = async function ({
   delete obj.password;
   obj['className'] = '_User';
   obj['sessionToken'] = sessionToken;
+  obj['sessionId'] = session.objectId;
   if (cacheController) {
     cacheController.user.put(sessionToken, obj);
   }
@@ -193,6 +198,7 @@ const getAuthForSessionToken = async function ({
     isMaster: false,
     installationId,
     user: userObject,
+    sessionId: session.objectId,
   });
 };
 
