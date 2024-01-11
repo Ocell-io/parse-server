@@ -177,12 +177,15 @@ describe('Cloud Code Logger', () => {
       const log = spy.calls.mostRecent().args;
       expect(log[0]).toEqual('info');
       expect(log[1]).toMatch(/Ran cloud function/);
-      expect(log[2]).toEqual({
+      const log2 = { ...log[2] };
+      delete log2.sessionId;
+      expect(log2).toEqual({
         functionName: 'aFunction',
         params: { foo: 'bar' },
         result: 'it worked!',
         user: user.id,
       });
+      expect(log[2].sessionId).toBeDefined();
       done();
     });
   });
@@ -277,12 +280,15 @@ describe('Cloud Code Logger', () => {
         const log = logs[1].args;
         expect(log[0]).toEqual('error');
         expect(log[1]).toMatch(/Failed running cloud function/);
-        expect(log[2]).toEqual({
+        const log2 = { ...log[2] };
+        delete log2.sessionId;
+        expect(log2).toEqual({
           functionName: 'aFunction',
           params: { foo: 'bar' },
           error: new Parse.Error(Parse.Error.SCRIPT_FAILED, 'it failed!'),
           user: user.id,
         });
+        expect(log[2].sessionId).toBeDefined();
         /*const errorString = JSON.stringify(
           new Parse.Error(Parse.Error.SCRIPT_FAILED, 'it failed!')
         );

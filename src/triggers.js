@@ -387,6 +387,7 @@ function logTriggerAfterHook(triggerType, className, input, auth, logLevel) {
       className,
       triggerType,
       user: userIdForLog(auth),
+      sessionId: auth.sessionId,
     }
   );
 }
@@ -402,6 +403,7 @@ function logTriggerSuccessBeforeHook(triggerType, className, input, result, auth
       className,
       triggerType,
       user: userIdForLog(auth),
+      sessionId: auth.sessionId,
     }
   );
 }
@@ -417,6 +419,7 @@ function logTriggerErrorBeforeHook(triggerType, className, input, auth, error, l
       triggerType,
       error,
       user: userIdForLog(auth),
+      sessionId: auth.sessionId,
     }
   );
 }
