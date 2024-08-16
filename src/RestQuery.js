@@ -135,6 +135,7 @@ function _UnsafeRestQuery(
 
   this.doCount = false;
   this.includeAll = false;
+  this.doAttachRoles = false;
 
   // The format for this.include is not the same as the format for the
   // include option - it's the paths we should include, in order,
@@ -201,6 +202,9 @@ function _UnsafeRestQuery(
       }
       case 'count':
         this.doCount = true;
+        break;
+      case 'attachRoles':
+        this.doAttachRoles = true;
         break;
       case 'includeAll':
         this.includeAll = true;
@@ -270,7 +274,7 @@ function _UnsafeRestQuery(
 // A convenient method to perform all the steps of processing a query
 // in order.
 // Returns a promise for the response - an object with optional keys
-// 'results' and 'count'.
+// 'results', 'count' and 'roles'.
 // TODO: consolidate the replaceX functions
 _UnsafeRestQuery.prototype.execute = function (executeOptions) {
   return Promise.resolve()
@@ -300,6 +304,9 @@ _UnsafeRestQuery.prototype.execute = function (executeOptions) {
     })
     .then(() => {
       return this.handleAuthAdapters();
+    })
+    .then(() => {
+      return this.attachRoles();
     })
     .then(() => {
       return this.response;
@@ -946,6 +953,13 @@ _UnsafeRestQuery.prototype.handleAuthAdapters = async function () {
       )
     )
   );
+};
+
+_UnsafeRestQuery.prototype.attachRoles = async function () {
+  if (!this.doAttachRoles) {
+    return;
+  }
+  this.response.roles = this.findOptions.acl ?? null;
 };
 
 // Adds included values to the response.

@@ -166,6 +166,7 @@ export class ClassesRouter extends PromiseRouter {
       'subqueryReadPreference',
       'hint',
       'explain',
+      'attachRoles',
     ];
 
     for (const key of Object.keys(body)) {
@@ -187,6 +188,9 @@ export class ClassesRouter extends PromiseRouter {
     }
     if (body.count) {
       options.count = true;
+    }
+    if (body.attachRoles) {
+      options.attachRoles = true;
     }
     if (body.keys != null) {
       options.keys = String(body.keys);

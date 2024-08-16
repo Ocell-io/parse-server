@@ -24,7 +24,7 @@ function checkLiveQuery(className, config) {
   return config.liveQueryController && config.liveQueryController.hasLiveQuery(className);
 }
 
-// Returns a promise for an object with optional keys 'results' and 'count'.
+// Returns a promise for an object with optional keys 'results', 'count' and 'roles'.
 const find = async (config, auth, className, restWhere, restOptions, clientSDK, context) => {
   const query = await RestQuery({
     method: RestQuery.Method.find,
