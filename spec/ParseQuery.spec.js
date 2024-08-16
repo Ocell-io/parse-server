@@ -6,12 +6,17 @@
 
 const Parse = require('parse/node');
 const request = require('../lib/request');
+const { createRole } = require('./support/dev');
+
+const anonymousHeaders = {
+  'X-Parse-Application-Id': 'test',
+  'X-Parse-Rest-API-Key': 'rest',
+  'Content-Type': 'application/json',
+};
 
 const masterKeyHeaders = {
-  'X-Parse-Application-Id': 'test',
-  'X-Parse-Rest-API-Key': 'test',
+  ...anonymousHeaders,
   'X-Parse-Master-Key': 'test',
-  'Content-Type': 'application/json',
 };
 
 const masterKeyOptions = {
@@ -1590,6 +1595,60 @@ describe('Parse.Query testing', () => {
         done();
       });
     });
+  });
+
+  it('does not attachRoles if not asked for', async () => {
+    for (const asked of [true, false]) {
+      const response = (
+        await request(
+          Object.assign(
+            { url: Parse.serverURL + '/classes/TestObject' + (asked ? '?attachRoles=true' : '') },
+            masterKeyOptions
+          )
+        )
+      ).data;
+      equal(Object.hasOwn(response, 'roles'), asked);
+    }
+  });
+
+  it('attachRoles returns null for master key', async () => {
+    const response = (
+      await request(
+        Object.assign(
+          { url: Parse.serverURL + '/classes/TestObject?attachRoles=true' },
+          masterKeyOptions
+        )
+      )
+    ).data;
+    equal(response.roles, null);
+  });
+
+  it('attachRoles works for anonymous requests', async () => {
+    const response = (
+      await request(
+        Object.assign(
+          { url: Parse.serverURL + '/classes/TestObject?attachRoles=true' },
+          { headers: anonymousHeaders }
+        )
+      )
+    ).data;
+    equal(response.roles, ['*']);
+  });
+
+  it('attachRoles works for users', async () => {
+    const user = await createTestUser();
+    const role1 = await createRole({ users: user });
+    const role2 = await createRole({ roles: role1 });
+
+    const response = (
+      await request(
+        Object.assign(
+          { url: Parse.serverURL + '/classes/TestObject?attachRoles=true' },
+          { headers: { ...anonymousHeaders, 'X-Parse-Session-Token': user.getSessionToken() } }
+        )
+      )
+    ).data;
+    equal(response.roles, ['*', `role:${role1.get('name')}`, `role:${role2.get('name')}`, user.id]);
   });
 
   it('order by ascending number', function (done) {
