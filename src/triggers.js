@@ -296,6 +296,9 @@ export function getRequestObject(
   }
   if (auth.user) {
     request['user'] = auth.user;
+    request['getRoles'] = async () => {
+      return (await auth.getUserRoles()).map(r => r.substr('role:'.length));
+    };
   }
   if (auth.installationId) {
     request['installationId'] = auth.installationId;
@@ -982,6 +985,9 @@ export function getRequestFileObject(triggerType, auth, fileObject, config) {
   }
   if (auth.user) {
     request['user'] = auth.user;
+    request['getRoles'] = async () => {
+      return (await auth.getUserRoles()).map(r => r.substr('role:'.length));
+    };
   }
   if (auth.installationId) {
     request['installationId'] = auth.installationId;

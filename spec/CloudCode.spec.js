@@ -1162,6 +1162,100 @@ describe('Cloud Code', () => {
     );
   });
 
+  it('test save triggers get user roles', async () => {
+    let beforeSaveFlag = false,
+      afterSaveFlag = false;
+    Parse.Cloud.beforeSave('SaveTriggerUserRoles', async function (req) {
+      expect(await req.getRoles()).toEqual(['TestRole']);
+      beforeSaveFlag = true;
+    });
+
+    Parse.Cloud.afterSave('SaveTriggerUserRoles', async function (req) {
+      expect(await req.getRoles()).toEqual(['TestRole']);
+      afterSaveFlag = true;
+    });
+
+    const user = new Parse.User();
+    user.set('password', 'asdf');
+    user.set('email', 'asdf@example.com');
+    user.set('username', 'zxcv');
+    await user.signUp();
+    const role = new Parse.Role('TestRole', new Parse.ACL({ '*': { read: true, write: true } }));
+    role.getUsers().add(user);
+    await role.save();
+
+    const obj = new Parse.Object('SaveTriggerUserRoles');
+    await obj.save();
+    expect(beforeSaveFlag).toBeTrue();
+    expect(afterSaveFlag).toBeTrue();
+  });
+
+  it('test file triggers get user roles', async () => {
+    let beforeSaveFlag = false,
+      afterSaveFlag = false;
+    Parse.Cloud.beforeSaveFile(async function (req) {
+      expect(await req.getRoles()).toEqual(['TestRole']);
+      beforeSaveFlag = true;
+    });
+
+    Parse.Cloud.afterSaveFile(async function (req) {
+      expect(await req.getRoles()).toEqual(['TestRole']);
+      afterSaveFlag = true;
+    });
+
+    const user = new Parse.User();
+    user.set('password', 'asdf');
+    user.set('email', 'asdf@example.com');
+    user.set('username', 'zxcv');
+    await user.signUp();
+    const role = new Parse.Role('TestRole', new Parse.ACL({ '*': { read: true, write: true } }));
+    role.getUsers().add(user);
+    await role.save();
+
+    const file = new Parse.File('myfile.txt', [1]);
+    await file.save();
+    expect(beforeSaveFlag).toBeTrue();
+    expect(afterSaveFlag).toBeTrue();
+  });
+
+  it('save triggers should not have user roles for anonymous calls', async () => {
+    let beforeSaveFlag = false,
+      afterSaveFlag = false;
+    Parse.Cloud.beforeSave('SaveTriggerUserRoles', async function (req) {
+      expect(req.getRoles).toBeUndefined();
+      beforeSaveFlag = true;
+    });
+
+    Parse.Cloud.afterSave('SaveTriggerUserRoles', async function (req) {
+      expect(req.getRoles).toBeUndefined();
+      afterSaveFlag = true;
+    });
+
+    const obj = new Parse.Object('SaveTriggerUserRoles');
+    await obj.save();
+    expect(beforeSaveFlag).toBeTrue();
+    expect(afterSaveFlag).toBeTrue();
+  });
+
+  it('file triggers should not have user roles for anonymous calls', async () => {
+    let beforeSaveFlag = false,
+      afterSaveFlag = false;
+    Parse.Cloud.beforeSaveFile(async function (req) {
+      expect(req.getRoles).toBeUndefined();
+      beforeSaveFlag = true;
+    });
+
+    Parse.Cloud.afterSaveFile(async function (req) {
+      expect(req.getRoles).toBeUndefined();
+      afterSaveFlag = true;
+    });
+
+    const file = new Parse.File('myfile.txt', [1]);
+    await file.save();
+    expect(beforeSaveFlag).toBeTrue();
+    expect(afterSaveFlag).toBeTrue();
+  });
+
   it('beforeSave change propagates through the save response', done => {
     Parse.Cloud.beforeSave('ChangingObject', function (request) {
       request.object.set('foo', 'baz');
