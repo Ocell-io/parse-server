@@ -1,4 +1,4 @@
-import Parse from 'parse/node';
+import Parse from '@ocell/parse/node';
 import { fromGlobalId } from 'graphql-relay';
 import { handleUpload } from '../loaders/filesMutations';
 import * as objectsMutations from '../helpers/objectsMutations';

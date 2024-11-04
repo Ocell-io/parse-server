@@ -46,7 +46,7 @@ const PostgresStorageAdapter = require('../lib/Adapters/Storage/Postgres/Postgre
   .default;
 const MongoStorageAdapter = require('../lib/Adapters/Storage/Mongo/MongoStorageAdapter').default;
 const RedisCacheAdapter = require('../lib/Adapters/Cache/RedisCacheAdapter').default;
-const RESTController = require('parse/lib/node/RESTController');
+const RESTController = require('@ocell/parse/lib/node/RESTController');
 const { VolatileClassesSchemas } = require('../lib/Controllers/SchemaController');
 
 const mongoURI = 'mongodb://localhost:27017/parseServerMongoAdapterTestDatabase';
@@ -210,7 +210,7 @@ const reconfigureServer = async (changedConfiguration = {}) => {
 };
 
 // Set up a Parse client to talk to our test API server
-const Parse = require('parse/node');
+const Parse = require('@ocell/parse/node');
 Parse.serverURL = 'http://localhost:' + port + '/1';
 
 beforeAll(async () => {
@@ -231,7 +231,11 @@ afterEach(function (done) {
   const afterLogOut = async () => {
     // Jasmine process uses one connection
     if (Object.keys(openConnections).length > 1) {
-      console.warn(`There were ${Object.keys(openConnections).length} open connections to the server left after the test finished`);
+      console.warn(
+        `There were ${
+          Object.keys(openConnections).length
+        } open connections to the server left after the test finished`
+      );
     }
     await TestUtils.destroyAllDataPermanently(true);
     SchemaCache.clear();

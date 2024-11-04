@@ -1,5 +1,5 @@
 import { ParsePubSub } from './ParsePubSub';
-import Parse from 'parse/node';
+import Parse from '@ocell/parse/node';
 import logger from '../logger';
 
 class ParseCloudCodePublisher {

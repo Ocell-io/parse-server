@@ -1,7 +1,7 @@
 import log from '../../../logger';
 import _ from 'lodash';
 var mongodb = require('mongodb');
-var Parse = require('parse/node').Parse;
+var Parse = require('@ocell/parse/node').Parse;
 const Utils = require('../../../Utils');
 
 const transformKey = (className, fieldName, schema) => {

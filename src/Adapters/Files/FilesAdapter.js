@@ -17,7 +17,7 @@
 // database adapter.
 
 import type { Config } from '../../Config';
-import Parse from 'parse/node';
+import Parse from '@ocell/parse/node';
 /**
  * @interface
  * @memberof module:Adapters

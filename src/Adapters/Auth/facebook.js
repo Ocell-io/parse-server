@@ -1,5 +1,5 @@
 // Helper functions for accessing the Facebook Graph API.
-const Parse = require('parse/node').Parse;
+const Parse = require('@ocell/parse/node').Parse;
 const crypto = require('crypto');
 const jwksClient = require('jwks-rsa');
 const jwt = require('jsonwebtoken');

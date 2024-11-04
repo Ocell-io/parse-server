@@ -1,4 +1,4 @@
-const Parse = require('parse/node');
+const Parse = require('@ocell/parse/node');
 
 const Id = require('../lib/LiveQuery/Id');
 const QueryTools = require('../lib/LiveQuery/QueryTools');

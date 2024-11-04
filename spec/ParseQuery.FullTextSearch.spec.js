@@ -1,7 +1,7 @@
 'use strict';
 
 const Config = require('../lib/Config');
-const Parse = require('parse/node');
+const Parse = require('@ocell/parse/node');
 const request = require('../lib/request');
 let databaseAdapter;
 

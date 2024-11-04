@@ -1,4 +1,4 @@
-import Parse from 'parse/node';
+import Parse from '@ocell/parse/node';
 import { GraphQLError } from 'graphql';
 
 export function enforceMasterKeyAccess(auth) {

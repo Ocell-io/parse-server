@@ -53,7 +53,7 @@
  * }
  */
 
-const Parse = require('parse/node').Parse;
+const Parse = require('@ocell/parse/node').Parse;
 const querystring = require('querystring');
 const httpsRequest = require('./httpsRequest');
 

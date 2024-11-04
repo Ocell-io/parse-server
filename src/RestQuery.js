@@ -2,9 +2,9 @@
 // operation, encoded in the REST API format.
 
 var SchemaController = require('./Controllers/SchemaController');
-var Parse = require('parse/node').Parse;
+var Parse = require('@ocell/parse/node').Parse;
 const triggers = require('./triggers');
-const { continueWhile } = require('parse/lib/node/promiseUtils');
+const { continueWhile } = require('@ocell/parse/lib/node/promiseUtils');
 const AlwaysSelectedKeys = ['objectId', 'createdAt', 'updatedAt', 'ACL'];
 const { enforceRoleSecurity } = require('./SharedRest');
 
@@ -53,15 +53,15 @@ async function RestQuery({
   enforceRoleSecurity(method, className, auth);
   const result = runBeforeFind
     ? await triggers.maybeRunQueryTrigger(
-      triggers.Types.beforeFind,
-      className,
-      restWhere,
-      restOptions,
-      config,
-      auth,
-      context,
-      method === RestQuery.Method.get
-    )
+        triggers.Types.beforeFind,
+        className,
+        restWhere,
+        restOptions,
+        config,
+        auth,
+        context,
+        method === RestQuery.Method.get
+      )
     : Promise.resolve({ restWhere, restOptions });
 
   return new _UnsafeRestQuery(

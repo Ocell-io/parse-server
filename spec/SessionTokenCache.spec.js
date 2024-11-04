@@ -2,7 +2,7 @@ const SessionTokenCache = require('../lib/LiveQuery/SessionTokenCache').SessionT
 
 describe('SessionTokenCache', function () {
   beforeEach(function (done) {
-    const Parse = require('parse/node');
+    const Parse = require('@ocell/parse/node');
 
     spyOn(Parse, 'Query').and.returnValue({
       first: jasmine.createSpy('first').and.returnValue(

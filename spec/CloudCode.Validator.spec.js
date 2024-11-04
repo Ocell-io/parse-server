@@ -1,5 +1,5 @@
 'use strict';
-const Parse = require('parse/node');
+const Parse = require('@ocell/parse/node');
 const validatorFail = () => {
   throw 'you are not authorized';
 };

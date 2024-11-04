@@ -1,5 +1,5 @@
 import loadAdapter from '../AdapterLoader';
-import Parse from 'parse/node';
+import Parse from '@ocell/parse/node';
 import AuthAdapter from './AuthAdapter';
 
 const apple = require('./apple');
