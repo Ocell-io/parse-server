@@ -1,5 +1,5 @@
 const ldapjs = require('ldapjs');
-const Parse = require('parse/node').Parse;
+const Parse = require('@ocell/parse/node').Parse;
 
 function validateAuthData(authData, options) {
   if (!optionsAreValid(options)) {

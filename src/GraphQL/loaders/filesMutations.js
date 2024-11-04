@@ -1,6 +1,6 @@
 import { GraphQLNonNull } from 'graphql';
 import { mutationWithClientMutationId } from 'graphql-relay';
-import Parse from 'parse/node';
+import Parse from '@ocell/parse/node';
 import * as defaultGraphQLTypes from './defaultGraphQLTypes';
 import logger from '../../logger';
 

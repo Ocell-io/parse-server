@@ -1,4 +1,4 @@
-const Parse = require('parse/node');
+const Parse = require('@ocell/parse/node');
 import { isDeepStrictEqual } from 'util';
 import { getRequestObject, resolveError } from './triggers';
 import Deprecator from './Deprecator/Deprecator';

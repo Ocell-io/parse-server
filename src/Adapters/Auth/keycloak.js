@@ -33,7 +33,7 @@
   ```
 */
 
-const { Parse } = require('parse/node');
+const { Parse } = require('@ocell/parse/node');
 const httpsRequest = require('./httpsRequest');
 
 const arraysEqual = (_arr1, _arr2) => {

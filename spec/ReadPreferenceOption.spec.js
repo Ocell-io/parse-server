@@ -1,6 +1,6 @@
 'use strict';
 
-const Parse = require('parse/node');
+const Parse = require('@ocell/parse/node');
 const { ReadPreference, Collection } = require('mongodb');
 const request = require('../lib/request');
 

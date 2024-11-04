@@ -1,5 +1,5 @@
 // Helper functions for accessing the instagram API.
-var Parse = require('parse/node').Parse;
+var Parse = require('@ocell/parse/node').Parse;
 const httpsRequest = require('./httpsRequest');
 const defaultURL = 'https://graph.instagram.com/';
 

@@ -1,4 +1,4 @@
-const Parse = require('parse/node').Parse;
+const Parse = require('@ocell/parse/node').Parse;
 const PostgresStorageAdapter = require('../lib/Adapters/Storage/Postgres/PostgresStorageAdapter')
   .default;
 const postgresURI =

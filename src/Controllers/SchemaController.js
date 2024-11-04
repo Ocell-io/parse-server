@@ -15,7 +15,7 @@
 // different databases.
 // TODO: hide all schema logic inside the database adapter.
 // @flow-disable-next
-const Parse = require('parse/node').Parse;
+const Parse = require('@ocell/parse/node').Parse;
 import { StorageAdapter } from '../Adapters/Storage/StorageAdapter';
 import SchemaCache from '../Adapters/Cache/SchemaCache';
 import DatabaseController from './DatabaseController';

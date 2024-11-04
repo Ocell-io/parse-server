@@ -1,4 +1,4 @@
-import Parse from 'parse/node';
+import Parse from '@ocell/parse/node';
 import { GraphQLYogaError } from '@graphql-yoga/node';
 
 export function enforceMasterKeyAccess(auth) {

@@ -1,4 +1,4 @@
-const Parse = require('parse/node');
+const Parse = require('@ocell/parse/node');
 const ParseLiveQueryServer = require('../lib/LiveQuery/ParseLiveQueryServer').ParseLiveQueryServer;
 const ParseServer = require('../lib/ParseServer').default;
 const LiveQueryController = require('../lib/Controllers/LiveQueryController').LiveQueryController;

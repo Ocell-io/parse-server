@@ -1,5 +1,5 @@
 const Config = require('../../lib/Config');
-const Parse = require('parse/node');
+const Parse = require('@ocell/parse/node');
 
 const className = 'AnObject';
 const defaultRoleName = 'tester';

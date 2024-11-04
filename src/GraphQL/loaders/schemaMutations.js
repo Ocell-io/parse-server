@@ -1,4 +1,4 @@
-import Parse from 'parse/node';
+import Parse from '@ocell/parse/node';
 import { GraphQLNonNull } from 'graphql';
 import deepcopy from 'deepcopy';
 import { mutationWithClientMutationId } from 'graphql-relay';

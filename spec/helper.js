@@ -44,7 +44,7 @@ const PostgresStorageAdapter = require('../lib/Adapters/Storage/Postgres/Postgre
   .default;
 const MongoStorageAdapter = require('../lib/Adapters/Storage/Mongo/MongoStorageAdapter').default;
 const RedisCacheAdapter = require('../lib/Adapters/Cache/RedisCacheAdapter').default;
-const RESTController = require('parse/lib/node/RESTController');
+const RESTController = require('@ocell/parse/lib/node/RESTController');
 const { VolatileClassesSchemas } = require('../lib/Controllers/SchemaController');
 
 const mongoURI = 'mongodb://localhost:27017/parseServerMongoAdapterTestDatabase';
@@ -182,7 +182,7 @@ const reconfigureServer = async (changedConfiguration = {}) => {
 };
 
 // Set up a Parse client to talk to our test API server
-const Parse = require('parse/node');
+const Parse = require('@ocell/parse/node');
 Parse.serverURL = 'http://localhost:' + port + '/1';
 
 beforeAll(async () => {
@@ -251,8 +251,8 @@ afterEach(function (done) {
     })
     .then(() => Parse.User.logOut())
     .then(
-      () => { },
-      () => { }
+      () => {},
+      () => {}
     ) // swallow errors
     .then(() => {
       // Connection close events are not immediate on node 10+... wait a bit
@@ -433,8 +433,8 @@ try {
   // Fetch test exclusion list
   testExclusionList = require('./testExclusionList.json');
   console.log(`Using test exclusion list with ${testExclusionList.length} entries`);
-} catch(error) {
-  if(error.code !== 'MODULE_NOT_FOUND') {
+} catch (error) {
+  if (error.code !== 'MODULE_NOT_FOUND') {
     throw error;
   }
 }
@@ -444,10 +444,8 @@ global.it_id = (id, func) => {
   if (testExclusionList.includes(id)) {
     return xit;
   } else {
-    if(func === undefined)
-      return it;
-    else
-      return func;
+    if (func === undefined) return it;
+    else return func;
   }
 };
 

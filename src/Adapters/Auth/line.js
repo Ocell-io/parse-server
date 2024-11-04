@@ -1,5 +1,5 @@
 // Helper functions for accessing the line API.
-var Parse = require('parse/node').Parse;
+var Parse = require('@ocell/parse/node').Parse;
 const httpsRequest = require('./httpsRequest');
 
 // Returns a promise that fulfills if this user id is valid.

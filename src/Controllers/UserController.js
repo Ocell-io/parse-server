@@ -3,7 +3,7 @@ import { inflate } from '../triggers';
 import AdaptableController from './AdaptableController';
 import MailAdapter from '../Adapters/Email/MailAdapter';
 import rest from '../rest';
-import Parse from 'parse/node';
+import Parse from '@ocell/parse/node';
 import AccountLockout from '../AccountLockout';
 import Config from '../Config';
 

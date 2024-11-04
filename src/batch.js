@@ -1,4 +1,4 @@
-const Parse = require('parse/node').Parse;
+const Parse = require('@ocell/parse/node').Parse;
 const path = require('path');
 // These methods handle batch requests.
 const batchPath = '/batch';
@@ -48,8 +48,8 @@ function makeBatchRoutingPathFunction(originalUrl, serverURL, publicServerURL) {
         startsWithLocal && startsWithPublic
           ? Math.max(localPath.length, publicPath.length)
           : startsWithLocal
-            ? localPath.length
-            : publicPath.length;
+          ? localPath.length
+          : publicPath.length;
 
       const newPath = path.posix.join('/', localPath, '/', requestPath.slice(pathLengthToUse));
 

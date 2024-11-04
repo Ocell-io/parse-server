@@ -1,7 +1,7 @@
 'use strict';
 
 // Helper functions for accessing the google API.
-var Parse = require('parse/node').Parse;
+var Parse = require('@ocell/parse/node').Parse;
 
 const https = require('https');
 const jwt = require('jsonwebtoken');

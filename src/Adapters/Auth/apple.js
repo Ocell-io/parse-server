@@ -1,7 +1,7 @@
 // Apple SignIn Auth
 // https://developer.apple.com/documentation/signinwithapplerestapi
 
-const Parse = require('parse/node').Parse;
+const Parse = require('@ocell/parse/node').Parse;
 const jwksClient = require('jwks-rsa');
 const util = require('util');
 const jwt = require('jsonwebtoken');

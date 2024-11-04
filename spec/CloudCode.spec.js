@@ -1,6 +1,6 @@
 'use strict';
 const Config = require('../lib/Config');
-const Parse = require('parse/node');
+const Parse = require('@ocell/parse/node');
 const ParseServer = require('../lib/index').ParseServer;
 const request = require('../lib/request');
 const InMemoryCacheAdapter = require('../lib/Adapters/Cache/InMemoryCacheAdapter')

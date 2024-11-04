@@ -1,5 +1,5 @@
 const Config = require('../lib/Config');
-const Parse = require('parse/node');
+const Parse = require('@ocell/parse/node');
 const request = require('../lib/request');
 const { className, createRole, createUser, logIn, updateCLP } = require('./support/dev');
 

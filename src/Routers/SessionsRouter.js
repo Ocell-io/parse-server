@@ -1,5 +1,5 @@
 import ClassesRouter from './ClassesRouter';
-import Parse from 'parse/node';
+import Parse from '@ocell/parse/node';
 import rest from '../rest';
 import Auth from '../Auth';
 import RestWrite from '../RestWrite';
