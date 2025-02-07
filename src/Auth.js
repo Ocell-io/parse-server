@@ -96,7 +96,7 @@ const renewSessionIfNeeded = async ({ config, session, sessionToken }) => {
           runBeforeFind: false,
           className: '_Session',
           restWhere: { sessionToken },
-          restOptions: { limit: 1 },
+          restOptions: { limit: 1, readPreference: 'SECONDARY_PREFERRED' },
         });
         const { results } = await query.execute();
         session = results[0];
@@ -152,6 +152,7 @@ const getAuthForSessionToken = async function ({
     const restOptions = {
       limit: 1,
       include: 'user',
+      readPreference: 'SECONDARY_PREFERRED',
     };
     const RestQuery = require('./RestQuery');
     const query = await RestQuery({
@@ -169,6 +170,7 @@ const getAuthForSessionToken = async function ({
       await new Parse.Query(Parse.Session)
         .limit(1)
         .include('user')
+        .readPreference('SECONDARY_PREFERRED')
         .equalTo('sessionToken', sessionToken)
         .find({ useMasterKey: true })
     ).map(obj => obj.toJSON());
@@ -271,6 +273,9 @@ Auth.prototype.getRolesForUser = async function () {
         objectId: this.user.id,
       },
     };
+    const restOptions = {
+      readPreference: 'SECONDARY_PREFERRED',
+    };
     const RestQuery = require('./RestQuery');
     const query = await RestQuery({
       method: RestQuery.Method.find,
@@ -279,6 +284,7 @@ Auth.prototype.getRolesForUser = async function () {
       auth: master(this.config),
       className: '_Role',
       restWhere,
+      restOptions,
     });
     await query.each(result => results.push(result));
   } else {
@@ -361,6 +367,7 @@ Auth.prototype.getRolesByIds = async function (ins) {
           return role;
         })
       )
+      .readPreference('SECONDARY_PREFERRED')
       .each(result => results.push(result.toJSON()), { useMasterKey: true });
   } else {
     const roles = ins.map(id => {
@@ -371,6 +378,9 @@ Auth.prototype.getRolesByIds = async function (ins) {
       };
     });
     const restWhere = { roles: { $in: roles } };
+    const restOptions = {
+      readPreference: 'SECONDARY_PREFERRED',
+    };
     const RestQuery = require('./RestQuery');
     const query = await RestQuery({
       method: RestQuery.Method.find,
@@ -379,6 +389,7 @@ Auth.prototype.getRolesByIds = async function (ins) {
       auth: master(this.config),
       className: '_Role',
       restWhere,
+      restOptions,
     });
     await query.each(result => results.push(result));
   }
