@@ -1651,6 +1651,35 @@ describe('Parse.Query testing', () => {
     equal(response.roles, ['*', `role:${role1.get('name')}`, `role:${role2.get('name')}`, user.id]);
   });
 
+  it('can exclude the ACL field', async () => {
+    let user = new Parse.User();
+    user.set('username', 'can_exclude_the_acl_field');
+    user.set('password', 'world');
+    try {
+      await user.signUp(null);}
+    catch (e) {
+      user = await Parse.User.logIn('can_exclude_the_acl_field', 'world');
+    }
+
+    const schema = new Parse.Schema("CanExcludeTheACLField");
+    await schema.save();
+
+    const obj1 = new Parse.Object("CanExcludeTheACLField");
+    obj1.setACL(new Parse.ACL(user));
+
+    const obj2 = new Parse.Object("CanExcludeTheACLField");
+    obj2.setACL(new Parse.ACL());
+
+    await Parse.Object.saveAll([obj1, obj2], { useMasterKey: true });
+
+    const query = new Parse.Query("CanExcludeTheACLField");
+    query.exclude('ACL');
+    const res = await query.find({ sessionToken: user.getSessionToken() });
+    equal(res.length, 1);
+    equal(res[0].objectId, obj1.objectId);
+    equal(res[0].getACL(), null);
+  });
+
   it('order by ascending number', function (done) {
     const makeBoxedNumber = function (i) {
       return new BoxedNumber({ number: i });

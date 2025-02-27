@@ -3,6 +3,7 @@
 
 var SchemaController = require('./Controllers/SchemaController');
 var Parse = require('@ocell/parse/node').Parse;
+const _ = require("lodash");
 const triggers = require('./triggers');
 const { continueWhile } = require('@ocell/parse/lib/node/promiseUtils');
 const AlwaysSelectedKeys = ['objectId', 'createdAt', 'updatedAt', 'ACL'];
@@ -770,6 +771,15 @@ _UnsafeRestQuery.prototype.runFind = async function (options = {}) {
       r.className = this.redirectClassName;
     }
   }
+
+  // Fully honor the excludeKeys preferences of the client
+  const forceIncludedKeys = _.intersection(this.restOptions.excludeKeys?.split(",") ?? [], AlwaysSelectedKeys);
+  for (const key of forceIncludedKeys) {
+    for (const r of results) {
+      delete r[key];
+    }
+  }
+
   this.response = { results: results };
 };
 
