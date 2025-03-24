@@ -176,6 +176,32 @@ describe_only_db('mongo')('Read preference option', () => {
     expect(myObjectReadPreference).toEqual(ReadPreference.SECONDARY);
   });
 
+  it('should preserve the read preference for relation queries', async () => {
+    // Create a new schema with a relation field
+    const className = 'preserve_read_pref_for_relational_queries';
+    const schema = new Parse.Schema(className);
+    schema.addRelation('rel', className);
+    await schema.save();
+    const obj = new Parse.Object(className);
+
+    await Parse.Object.saveAll([obj]);
+    spyOn(Collection.prototype, 'find').and.callThrough();
+
+    await obj.relation('rel').query().readPreference(ReadPreference.SECONDARY).find();
+
+    await new Parse.Query(className)
+      .equalTo('rel', obj)
+      .readPreference(ReadPreference.SECONDARY)
+      .find();
+
+    expect(
+      Collection.prototype.find.calls
+        .all()
+        .filter(call => call.object.s.namespace.collection.indexOf(className) >= 0)
+        .every(call => call.args[1].readPreference === ReadPreference.SECONDARY)
+    ).toEqual(true);
+  });
+
   it('should change read preference in the beforeFind trigger even returning query', async () => {
     const obj0 = new Parse.Object('MyObject');
     obj0.set('boolKey', false);

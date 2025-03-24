@@ -963,7 +963,7 @@ class DatabaseController {
     queryOptions: QueryOptions
   ): Promise<Array<string>> {
     const { skip, limit, sort } = queryOptions;
-    const findOptions = {};
+    const findOptions: QueryOptions = { readPreference: queryOptions.readPreference };
     if (sort && sort.createdAt && this.adapter.canSortOnJoinTables) {
       findOptions.sort = { _id: sort.createdAt };
       findOptions.limit = limit;
@@ -977,13 +977,18 @@ class DatabaseController {
 
   // Returns a promise for a list of owning ids given some related ids.
   // className here is the owning className.
-  owningIds(className: string, key: string, relatedIds: string[]): Promise<string[]> {
+  owningIds(
+    className: string,
+    key: string,
+    relatedIds: string[],
+    queryOptions: QueryOptions
+  ): Promise<string[]> {
     return this.adapter
       .find(
         joinTableName(className, key),
         relationSchema,
         { relatedId: { $in: relatedIds } },
-        { keys: ['owningId'] }
+        { keys: ['owningId'], readPreference: queryOptions.readPreference }
       )
       .then(results => results.map(result => result.owningId));
   }
@@ -991,7 +996,12 @@ class DatabaseController {
   // Modifies query so that it no longer has $in on relation fields, or
   // equal-to-pointer constraints on relation fields.
   // Returns a promise that resolves when query is mutated
-  reduceInRelation(className: string, query: any, schema: any): Promise<any> {
+  reduceInRelation(
+    className: string,
+    query: any,
+    schema: any,
+    queryOptions: QueryOptions
+  ): Promise<any> {
     // Search for an in-relation or equal-to-relation
     // Make it sequential for now, not sure of paralleization side effects
     const promises = [];
@@ -999,7 +1009,7 @@ class DatabaseController {
       const ors = query['$or'];
       promises.push(
         ...ors.map((aQuery, index) => {
-          return this.reduceInRelation(className, aQuery, schema).then(aQuery => {
+          return this.reduceInRelation(className, aQuery, schema, queryOptions).then(aQuery => {
             query['$or'][index] = aQuery;
           });
         })
@@ -1009,7 +1019,7 @@ class DatabaseController {
       const ands = query['$and'];
       promises.push(
         ...ands.map((aQuery, index) => {
-          return this.reduceInRelation(className, aQuery, schema).then(aQuery => {
+          return this.reduceInRelation(className, aQuery, schema, queryOptions).then(aQuery => {
             query['$and'][index] = aQuery;
           });
         })
@@ -1066,7 +1076,7 @@ class DatabaseController {
         if (!q) {
           return Promise.resolve();
         }
-        return this.owningIds(className, key, q.relatedIds).then(ids => {
+        return this.owningIds(className, key, q.relatedIds, queryOptions).then(ids => {
           if (q.isNegation) {
             this.addNotInObjectIdsIds(ids, query);
           } else {
@@ -1284,7 +1294,7 @@ class DatabaseController {
             : schemaController.validatePermission(className, aclGroup, op)
           )
             .then(() => this.reduceRelationKeys(className, query, queryOptions))
-            .then(() => this.reduceInRelation(className, query, schemaController))
+            .then(() => this.reduceInRelation(className, query, schemaController, queryOptions))
             .then(() => {
               let protectedFields;
               if (!isMaster) {
